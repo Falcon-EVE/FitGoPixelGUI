@@ -22,7 +22,7 @@
         {% endwith %}
 
         <!-- Título principal -->
-        <h1>¡A Entrenar, Pequeños Héroes!</h1>
+        <h1>¡A Entrenar, Futura humanidad!</h1>
 
         <!-- Mostrar monedas actuales -->
         <div class="money-window">
@@ -33,7 +33,7 @@
         <div class="trainer-character">
             <img src="{{ url_for('static', filename='trainer.png') }}" alt="Entrenador">
             <div class="speech-bubble">
-                <p>¡Vamos a ponernos fuertes! Elige un ejercicio y comienza la aventura.</p>
+                <p>¡Vamos a ponernos fuertes! Elige un ejercicio y comienza lo bueno.</p>
             </div>
         </div>
 
@@ -41,26 +41,26 @@
         <div class="exercise-windows">
             <div class="exercise-window" id="exercise1">
                 <h3>🌟 Sentadillas</h3>
-                <p>¡Salta como un canguro!</p>
+                <p>¡Hasta abajo!</p>
                 <button onclick="startExercise('Sentadillas', 'exercise1')">¡Comenzar!</button>
                 <div class="gif-container" style="display: none;">
-                    <img src="{{ url_for('static', filename='ejemplo1.gif') }}" alt="Sentadillas GIF">
+                    <img src="{{ url_for('static', filename='sentadillas1.gif') }}" alt="Sentadillas1.gif">
                 </div>
             </div>
             <div class="exercise-window" id="exercise2">
-                <h3>🌟 Flexiones</h3>
-                <p>¡Fuerte como un león!</p>
+                <h3>🌟 Saltos de tijera</h3>
+                <p>¡Bien abiertos los brazos!</p>
                 <button onclick="startExercise('Flexiones', 'exercise2')">¡Comenzar!</button>
                 <div class="gif-container" style="display: none;">
-                    <img src="{{ url_for('static', filename='ejemplo1.gif') }}" alt="Flexiones GIF">
+                    <img src="{{ url_for('static', filename='saltostijera1.gif') }}" alt="saltostijera1.gif">
                 </div>
             </div>
             <div class="exercise-window" id="exercise3">
-                <h3>🌟 Abdominales</h3>
-                <p>¡Rápido como un guepardo!</p>
+                <h3>🌟 Lagartijas</h3>
+                <p>¡Venga, demuestra tu fuerza!</p>
                 <button onclick="startExercise('Abdominales', 'exercise3')">¡Comenzar!</button>
                 <div class="gif-container" style="display: none;">
-                    <img src="{{ url_for('static', filename='ejemplo1.gif') }}" alt="Abdominales GIF">
+                    <img src="{{ url_for('static', filename='lagartijas1.gif') }}" alt="lagartijas1.gif">
                 </div>
             </div>
         </div>

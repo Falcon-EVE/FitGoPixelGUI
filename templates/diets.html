@@ -12,46 +12,84 @@
 <body>
     <div class="retro-container">
         <!-- Título principal -->
-        <h1>Dietas</h1>
+        <h1>Dietas Fit</h1>
 
         <!-- Contenedor de dietas -->
-        <div class="diet-windows">
-            <div class="diet-window">
-                <span></span>
-                <div class="content">
-                    <h2>1. Dieta Mediterránea</h2>
-                    <p>Desayuno: Yogur griego con frutas y nueces.</p>
-                    <p>Almuerzo: Ensalada de atún con espinacas, tomate, aceitunas.</p>
-                    <p>Cena: Pechuga de pollo con verduras al vapor y almendras.</p>
-                    <a href="#">Leer Más</a>
-                </div>
-            </div>
-            <div class="diet-window">
-                <span></span>
-                <div class="content">
-                    <h2>2. Dieta Baja en Carbohidratos</h2>
-                    <p>Desayuno: Huevos revueltos con espinacas y aguacate.</p>
-                    <p>Almuerzo: Pechuga de pollo con ensalada de brócoli y pepino.</p>
-                    <p>Cena: Pescado a la parrilla con espárragos y zanahorias.</p>
-                    <a href="#">Leer Más</a>
-                </div>
-            </div>
-            <div class="diet-window">
-                <span></span>
-                <div class="content">
-                    <h2>3. Dieta Vegetariana</h2>
-                    <p>Desayuno: Avena con leche de almendra, plátano y almendras.</p>
-                    <p>Almuerzo: Tofu a la plancha con arroz integral y verduras.</p>
-                    <p>Cena: Sopa de lentejas con espinacas y zanahorias.</p>
-                    <a href="#">Leer Más</a>
-                </div>
-            </div>
+        <div id="dietas-container" class="diet-windows">
+            <!-- Las dietas serán insertadas aquí dinámicamente -->
         </div>
+
+        <!-- Botón de barajear con la misma clase que el botón de regresar -->
+        <a href="#" id="barajear-button" class="back-button">Barajear</a>
 
         <!-- Botón de regresar -->
         <a href="/" class="back-button">Regresar</a>
     </div>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Lista de 20 dietas para niños menores de 17 años
+        const dietas = [
+            { nombre: 'Dieta 1: Dieta Balanceada', desayuno: 'Tostadas integrales con aguacate y huevo', almuerzo: 'Pollo a la plancha con brócoli', cena: 'Ensalada de atún con zanahorias' },
+            { nombre: 'Dieta 2: Dieta Mediterránea', desayuno: 'Yogur griego con frutas y nueces', almuerzo: 'Ensalada de atún con espinacas, tomate, aceitunas', cena: 'Pechuga de pollo con verduras al vapor' },
+            { nombre: 'Dieta 3: Dieta Baja en Carbohidratos', desayuno: 'Huevos revueltos con espinacas y aguacate', almuerzo: 'Pechuga de pollo con ensalada de brócoli y pepino', cena: 'Pescado a la parrilla con espárragos' },
+            { nombre: 'Dieta 4: Dieta Vegetariana', desayuno: 'Avena con leche de almendra, plátano y almendras', almuerzo: 'Tofu a la plancha con arroz integral y verduras', cena: 'Sopa de lentejas con espinacas y zanahorias' },
+            { nombre: 'Dieta 5: Dieta para Energía', desayuno: 'Batido de frutas con avena y almendras', almuerzo: 'Pollo con arroz integral y verduras', cena: 'Sopa de verduras y pan integral' },
+            { nombre: 'Dieta 6: Dieta Rica en Proteínas', desayuno: 'Huevos duros con tomate y espinacas', almuerzo: 'Carne magra con ensalada de pepino', cena: 'Salmón al horno con espárragos' },
+            { nombre: 'Dieta 7: Dieta para el Crecimiento', desayuno: 'Leche con cereales integrales', almuerzo: 'Pechuga de pollo con batatas', cena: 'Espaguetis con tomate y queso bajo en grasa' },
+            { nombre: 'Dieta 8: Dieta Baja en Azúcares', desayuno: 'Yogur natural con frutos rojos', almuerzo: 'Ensalada de pollo con quinoa', cena: 'Pechuga de pavo con verduras' },
+            { nombre: 'Dieta 9: Dieta de Frutos Rojos', desayuno: 'Tostadas de pan integral con mermelada de frutos rojos', almuerzo: 'Ensalada de pollo con fresas', cena: 'Pescado al vapor con puré de batata' },
+            { nombre: 'Dieta 10: Dieta Sin Gluten', desayuno: 'Huevos revueltos con espinacas', almuerzo: 'Arroz con pollo y verduras', cena: 'Sopa de calabaza y zanahorias' },
+            { nombre: 'Dieta 11: Dieta Baja en Grasas', desayuno: 'Fruta fresca con yogur', almuerzo: 'Pechuga de pollo con ensalada', cena: 'Sopa de lentejas' },
+            { nombre: 'Dieta 12: Dieta Mediterránea Ligera', desayuno: 'Avena con miel y frutas', almuerzo: 'Ensalada de atún', cena: 'Sopa de verduras con pan integral' },
+            { nombre: 'Dieta 13: Dieta para Deportistas', desayuno: 'Batido de proteínas con avena', almuerzo: 'Carne magra con arroz y ensalada', cena: 'Pescado con espárragos y zanahorias' },
+            { nombre: 'Dieta 14: Dieta Detox', desayuno: 'Jugo de naranja con espinacas', almuerzo: 'Ensalada de pepino con aguacate', cena: 'Sopa de tomate y pan integral' },
+            { nombre: 'Dieta 15: Dieta Baja en Sodio', desayuno: 'Yogur natural con frutos secos', almuerzo: 'Pollo asado con arroz integral', cena: 'Verduras al vapor con tofu' },
+            { nombre: 'Dieta 16: Dieta para Piel Saludable', desayuno: 'Jugo de zanahoria con manzana', almuerzo: 'Ensalada de aguacate con tomate', cena: 'Salmón con espárragos' },
+            { nombre: 'Dieta 17: Dieta para Huesos Fuertes', desayuno: 'Leche con avena', almuerzo: 'Sopa de brócoli con queso bajo en grasa', cena: 'Pechuga de pollo con zanahorias' },
+            { nombre: 'Dieta 18: Dieta de Fibra Alta', desayuno: 'Pan integral con aguacate', almuerzo: 'Arroz integral con verduras', cena: 'Sopa de lentejas con espinacas' },
+            { nombre: 'Dieta 19: Dieta para la Concentración', desayuno: 'Yogur griego con nueces', almuerzo: 'Ensalada de pollo con espinacas', cena: 'Pescado con puré de batata' },
+            { nombre: 'Dieta 20: Dieta Vegana', desayuno: 'Avena con leche de almendras', almuerzo: 'Tofu con arroz y brócoli', cena: 'Sopa de verduras' }
+        ];
+
+        // Función para barajear y mostrar 3 dietas aleatorias
+        let dietasMostradas = [];
+
+        function barajearDietas() {
+            // Limpiar el contenedor antes de mostrar las nuevas dietas
+            document.getElementById("dietas-container").innerHTML = '';
+
+            // Seleccionar 3 dietas aleatorias que no se repitan
+            let dietasSeleccionadas = [];
+            while (dietasSeleccionadas.length < 3) {
+                let randomIndex = Math.floor(Math.random() * dietas.length);
+                if (!dietasSeleccionadas.includes(randomIndex)) {
+                    dietasSeleccionadas.push(randomIndex);
+                }
+            }
+
+            // Mostrar las dietas seleccionadas
+            dietasSeleccionadas.forEach(index => {
+                const dieta = dietas[index];
+                const dietaElement = `
+                    <div class="diet-window">
+                        <span></span>
+                        <div class="content">
+                            <h2>${dieta.nombre}</h2>
+                            <p>Desayuno: ${dieta.desayuno}</p>
+                            <p>Almuerzo: ${dieta.almuerzo}</p>
+                            <p>Cena: ${dieta.cena}</p>
+                        </div>
+                    </div>
+                `;
+                document.getElementById("dietas-container").innerHTML += dietaElement;
+            });
+        }
+
+        // Llamada inicial para mostrar las dietas
+        barajearDietas();
+
+        // Evento para el botón de barajear
+        document.getElementById("barajear-button").addEventListener("click", barajearDietas);
+    </script>
 </body>
 </html>

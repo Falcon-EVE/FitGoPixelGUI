@@ -310,6 +310,23 @@ def missions():
     cursor.execute("SELECT * FROM misiones")
     misiones = cursor.fetchall()
 
+    # Obtener las misiones completadas por el usuario
+    cursor.execute("""
+        SELECT m.* FROM misiones m
+        JOIN logros_misiones lm ON m.id_mision = lm.id_mision
+        WHERE lm.id_usuario = %s
+    """, (id_usuario,))
+    misiones_completadas = cursor.fetchall()
+
+    # Obtener las misiones pendientes (no completadas)
+    cursor.execute("""
+        SELECT m.* FROM misiones m
+        WHERE m.id_mision NOT IN (
+            SELECT id_mision FROM logros_misiones WHERE id_usuario = %s
+        )
+    """, (id_usuario,))
+    misiones_pendientes = cursor.fetchall()
+
     # Obtener los ejercicios divididos por categorías
     cursor.execute("SELECT * FROM ejercicios WHERE tipo = 'fuerza'")
     ejercicios_fuerza = cursor.fetchall()
@@ -320,7 +337,10 @@ def missions():
     cursor.execute("SELECT * FROM ejercicios WHERE tipo = 'resistencia'")
     ejercicios_resistencia = cursor.fetchall()
 
-    return render_template('missions.html', misiones=misiones, 
+    return render_template('missions.html', 
+                           misiones=misiones, 
+                           misiones_completadas=misiones_completadas, 
+                           misiones_pendientes=misiones_pendientes,
                            ejercicios_fuerza=ejercicios_fuerza, 
                            ejercicios_agilidad=ejercicios_agilidad, 
                            ejercicios_resistencia=ejercicios_resistencia)
