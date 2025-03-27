@@ -27,7 +27,7 @@
                 <div class="stat-item">
                     <h3>Fuerza: {{ usuario.fuerza }}</h3>
                     <div class="stat-bar">
-                        <div class="stat-fill" style="width: {{ usuario.fuerza }}%;"></div>
+                        <div class="stat-fill" style="width: {{ usuario.fuerza if usuario.fuerza <= 100 else 100 }}%;">
                     </div>
                 </div>
                 <div class="stat-item">

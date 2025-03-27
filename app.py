@@ -56,7 +56,7 @@ def complete_exercise():
     exercise_type = request.form['exercise_type']
     fecha_actual = date.today()
 
-    # Mapear el nombre del ejercicio a un id_ejercicio (ajusta según tu tabla ejercicios)
+    # Mapear el nombre del ejercicio a un id_ejercicio
     exercise_mapping = {
         'Sentadillas': 1,
         'Flexiones': 2,
@@ -65,6 +65,16 @@ def complete_exercise():
     id_ejercicio = exercise_mapping.get(exercise_type)
     if not id_ejercicio:
         return jsonify({'success': False, 'message': 'Ejercicio no encontrado'}), 400
+
+    # Mapear el ejercicio a su tipo de estadística
+    stat_mapping = {
+        'Sentadillas': 'fuerza',
+        'Flexiones': 'fuerza',
+        'Abdominales': 'resistencia'
+    }
+    stat_type = stat_mapping.get(exercise_type)
+    if not stat_type:
+        return jsonify({'success': False, 'message': 'Tipo de estadística no encontrado para este ejercicio'}), 400
 
     try:
         # Registrar el ejercicio en rutina_ejercicios
@@ -82,6 +92,10 @@ def complete_exercise():
 
         # Sumar 100 monedas al usuario
         cursor.execute("UPDATE usuarios SET monedas = monedas + 100 WHERE id_usuario = %s", (id_usuario,))
+
+        # Incrementar la estadística correspondiente (fuerza, agilidad o resistencia)
+        cursor.execute(f"UPDATE usuarios SET {stat_type} = {stat_type} + 10 WHERE id_usuario = %s", (id_usuario,))
+
         db.commit()
 
         # Verificar las monedas después de la actualización
@@ -89,7 +103,7 @@ def complete_exercise():
         usuario_actualizado = cursor.fetchone()
         print(f"Monedas después de sumar: {usuario_actualizado['monedas']}")  # Depuración
 
-        return jsonify({'success': True, 'message': 'Monedas añadidas con éxito'})
+        return jsonify({'success': True, 'message': 'Monedas y estadísticas actualizadas con éxito'})
     except mysql.connector.Error as err:
         db.rollback()  # Revertir cambios en caso de error
         print(f"Error en la base de datos: {err}")
