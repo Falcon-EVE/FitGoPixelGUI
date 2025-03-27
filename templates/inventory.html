@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - FitGo</title>
+    <!-- Google Fonts para una fuente pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="retro-container">
+        <!-- Título principal -->
+        <h1>🎒 Tu Inventario</h1>
+
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Lista de productos en el inventario -->
+        <div class="inventory-windows">
+            {% if products %}
+                {% for product in products %}
+                    <div class="inventory-window">
+                        <div class="inventory-image">
+                            <img src="{{ url_for('static', filename=product.imagen) }}" alt="{{ product.nombre }}">
+                        </div>
+                        <h3>{{ product.nombre }}</h3>
+                        <p>{{ product.descripcion }}</p>
+                        <p>💰 Precio original: {{ product.precio }} Monedas</p>
+                        <p>📦 Cantidad: {{ product.cantidad }}</p>
+                        <!-- Botón para usar/equipar el producto -->
+                        <form action="{{ url_for('use_item', producto_id=product.id) }}" method="POST">
+                            <button type="submit" class="action-button">Usar</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No tienes productos en tu inventario. ¡Visita la tienda para comprar algo!</p>
+            {% endif %}
+        </div>
+
+        <!-- Regresar al perfil -->
+        <a href="{{ url_for('profile') }}" class="back-button">Regresar al Perfil</a>
+    </div>
+</body>
+</html>

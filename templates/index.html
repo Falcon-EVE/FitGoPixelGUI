@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitGO</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='FITGOLOGO.png') }}">
+
+    <!-- Google Fonts para una fuente pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="village-container">
+        <!-- Mapa de fondo -->
+        <div class="village-map">
+            <!-- Logo en el centro -->
+            <img src="{{ url_for('static', filename='FITGOLOGO.png') }}" alt="Logo" class="village-logo">
+
+            <!-- Barra lateral izquierda -->
+            <div class="sidebar sidebar-left">
+                <div class="village-area" onclick="window.location.href='/play'">
+                    <img src="{{ url_for('static', filename='fc4.png') }}" alt="Play" class="area-icon">
+                    <span class="tooltip">Ejercicios</span>
+                </div>
+                <div class="village-area" onclick="window.location.href='/store'">
+                    <img src="{{ url_for('static', filename='fc48.png') }}" alt="Store" class="area-icon">
+                    <span class="tooltip">Tienda</span>
+                </div>
+                <div class="village-area" onclick="window.location.href='/diets'">
+                    <img src="{{ url_for('static', filename='fc53.png') }}" alt="Diets" class="area-icon">
+                    <span class="tooltip">Dietas</span>
+                </div>
+            </div>
+
+            <!-- Barra lateral derecha -->
+            <div class="sidebar sidebar-right">
+                <div class="village-area" onclick="window.location.href='/missions'">
+                    <img src="{{ url_for('static', filename='fc8.png') }}" alt="Missions" class="area-icon">
+                    <span class="tooltip">Misiones</span>
+                </div>
+                <div class="village-area" onclick="window.location.href='/inventory'">
+                    <img src="{{ url_for('static', filename='fc6.png') }}" alt="Inventory" class="area-icon">
+                    <span class="tooltip">Inventario</span>
+                </div>
+                <div class="village-area" onclick="window.location.href='/profile'">
+                    <img src="{{ url_for('static', filename='fc5.png') }}" alt="Profile" class="area-icon">
+                    <span class="tooltip">Perfil</span>
+                </div>
+                <div class="village-area" onclick="exitApp()">
+                    <img src="{{ url_for('static', filename='fc3.png') }}" alt="Exit" class="area-icon">
+                    <span class="tooltip">Salir</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,839 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Fondo del cuerpo */
+  body {
+    background-color: #000; /* Fondo negro para un look retro */
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Press Start 2P', cursive; /* Fuente pixelada */
+    color: #fff;
+  }
+  
+  /* Contenedor principal del pueblo (index.html) */
+  .village-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Mapa del pueblo como fondo (index.html) */
+  .village-map {
+    width: 100%;
+    height: 100%;
+    background-image: url('wp10742485-pokemon-forest-wallpapers.png'); /* Reemplaza con la ruta de tu mapa */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* Logo en el centro (index.html) */
+  .village-logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 1000px; /* Ajusta el tamaño según tu logo */
+    height: auto;
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5)); /* Sombra retro */
+  }
+  
+  /* Barras laterales (index.html) */
+  .sidebar {
+    width: 200px; /* Ancho de las barras laterales */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    padding: 20px 0;
+  }
+  
+  .sidebar-left {
+    position: absolute;
+    left: 0;
+  }
+  
+  .sidebar-right {
+    position: absolute;
+    right: 0;
+  }
+  
+  /* Áreas interactivas (cuadros) (index.html) */
+  .village-area {
+    width: 64px; /* Tamaño típico de sprites en 16 bits */
+    height: 64px;
+    margin: 10px 0;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    background: #fff; /* Fondo blanco para los cuadros */
+    border: 4px solid #000; /* Borde negro estilo retro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Imágenes dentro de los cuadros (index.html) */
+  .area-icon {
+    width: 48px; /* Tamaño de la imagen dentro del cuadro */
+    height: 48px;
+    image-rendering: pixelated; /* Para mantener el estilo pixelado */
+  }
+  
+  /* Efecto al pasar el mouse (index.html) */
+  .village-area:hover {
+    transform: scale(1.1);
+  }
+  
+  /* Estilos de los tooltips (index.html) */
+  .tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    border: 2px solid #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 10px;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  
+  .village-area:hover .tooltip {
+    opacity: 1;
+  }
+  
+  /* Animación para simular un "brillo" retro (usado en todas las páginas) */
+  @keyframes pixel-glow {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+    100% { filter: brightness(1); }
+  }
+  
+  .village-area:hover {
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Contenedor principal (play.html, store.html, diets.html, profile.html y missions.html) */
+  .retro-container {
+    width: 100%;
+    height: 100%;
+    background: #000 url('path-to-retro-pattern.png') repeat; /* Fondo con patrón retro */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Alinea al principio para permitir scroll */
+    padding: 20px;
+    overflow-y: auto; /* Permite desplazarse verticalmente */
+  }
+  
+  /* Título principal (play.html, store.html, diets.html, profile.html y missions.html) */
+  h1 {
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  /* Contenedor de las ventanas de ejercicios (play.html) */
+  .exercise-windows {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Para que se ajusten en pantallas pequeñas */
+  }
+  
+  /* Ventanas de ejercicios (estilo panel de RPG) (play.html) */
+  .exercise-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    width: 250px;
+    height: 350px;
+    text-align: center;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .exercise-window h3 {
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 10px;
+  }
+  
+  .exercise-window p {
+    font-size: 10px;
+    color: #ccc;
+    margin-bottom: 15px;
+  }
+  
+  .exercise-window button {
+    background: #ff0000; /* Rojo retro */
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .exercise-window button:hover {
+    background: #00ff00; /* Verde retro */
+  }
+  
+  /* Contenedor del GIF (play.html) */
+  .exercise-window .gif-container {
+    margin-top: 15px;
+  }
+  
+  .exercise-window .gif-container img {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+    image-rendering: pixelated; /* Mantener el estilo pixelado si el GIF lo requiere */
+  }
+  
+  /* Efecto al pasar el mouse sobre la ventana (play.html) */
+  .exercise-window:hover {
+    transform: scale(1.05);
+  }
+  
+  /* Contenedor del temporizador (play.html) */
+  .timer-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  /* Barra de progreso (play.html) */
+  #progress-container {
+    width: 300px;
+    height: 20px;
+    background: #000;
+    border: 4px solid #fff;
+    box-shadow: 4px 4px 0 #000;
+    position: relative;
+  }
+  
+  #progress-bar {
+    background: #00ff00; /* Verde retro */
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease-in-out;
+  }
+  
+  /* Temporizador (play.html) */
+  #timer-display {
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 2px 2px 0 #000;
+    margin: 10px 0;
+  }
+  
+  /* Botón de iniciar temporizador (play.html) */
+  #start-timer {
+    background: #ff0000;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  #start-timer:hover {
+    background: #00ff00;
+  }
+  
+  /* Botón de regresar (play.html, store.html, diets.html, profile.html y missions.html) */
+  .back-button {
+    background: #000;
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .back-button:hover {
+    background: #ff0000;
+  }
+  
+  /* Aplicar la animación pixel-glow a elementos interactivos (todas las páginas) */
+  .exercise-window:hover,
+  #start-timer:hover,
+  .back-button:hover {
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Contenedor de las ventanas de productos (store.html) */
+  .product-windows {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Para que se ajusten en pantallas pequeñas */
+  }
+  
+  /* Ventanas de productos (estilo panel de RPG) (store.html) */
+  .product-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    width: 250px;
+    height: 350px;
+    text-align: center;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* Imagen del producto (store.html) */
+  .product-window .product-image {
+    width: 100%;
+    height: auto;
+    max-height: 150px;
+    object-fit: contain; /* Para que la imagen no se distorsione */
+    image-rendering: pixelated; /* Mantener el estilo pixelado si la imagen lo requiere */
+    margin-bottom: 10px;
+  }
+  
+  /* Título del producto (store.html) */
+  .product-window h3 {
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 10px;
+  }
+  
+  /* Precio del producto (store.html) */
+  .product-window p {
+    font-size: 12px;
+    color: #ffd700; /* Amarillo dorado para las monedas */
+    margin-bottom: 15px;
+  }
+  
+  /* Botón de agregar al carrito (store.html) */
+  .product-window .add-to-cart {
+    background: #ff0000; /* Rojo retro */
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .product-window .add-to-cart:hover {
+    background: #00ff00; /* Verde retro */
+  }
+  
+  /* Efecto al pasar el mouse sobre la ventana (store.html) */
+  .product-window:hover {
+    transform: scale(1.05);
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Mensaje de agregado al carrito (store.html) */
+  .cart-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #000;
+    border: 4px solid #fff;
+    padding: 10px 20px;
+    box-shadow: 4px 4px 0 #000;
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    display: none;
+    z-index: 10;
+  }
+  
+  /* Contenedor de las ventanas de dietas (diets.html) */
+  .diet-windows {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap; /* Para que se ajusten en pantallas pequeñas */
+  }
+  
+  /* Ventanas de dietas (estilo panel de RPG con dinamismo) (diets.html) */
+  .diet-window {
+    position: relative;
+    width: 250px;
+    height: 350px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+  }
+  
+  /* Efecto de fondo dinámico (adaptado de style2.css) */
+  .diet-window::before,
+  .diet-window::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50px;
+    width: 50%;
+    height: 100%;
+    background: #fff;
+    border-radius: 8px;
+    transform: skewX(15deg);
+    transition: 0.5s;
+    filter: blur(30px);
+  }
+  
+  .diet-window:hover::before,
+  .diet-window:hover::after {
+    transform: skewX(0deg);
+    left: 20px;
+    width: calc(100% - 90px);
+  }
+  
+  /* Gradientes para cada ventana (adaptado de style2.css) */
+  .diet-window:nth-child(1)::before,
+  .diet-window:nth-child(1)::after {
+    background: linear-gradient(315deg, #ffbc00, #ff0058);
+  }
+  
+  .diet-window:nth-child(2)::before,
+  .diet-window:nth-child(2)::after {
+    background: linear-gradient(315deg, #03a9f4, #ff0058);
+  }
+  
+  .diet-window:nth-child(3)::before,
+  .diet-window:nth-child(3)::after {
+    background: linear-gradient(315deg, #4dff03, #00d0ff);
+  }
+  
+  /* Elemento span para efectos (diets.html) */
+  .diet-window span {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    pointer-events: none;
+  }
+  
+  /* Contenido de la ventana (diets.html) */
+  .diet-window .content {
+    position: relative;
+    left: 0;
+    padding: 20px;
+    background: #000;
+    border: 4px solid #fff;
+    box-shadow: 4px 4px 0 #000;
+    border-radius: 8px;
+    z-index: 1;
+    transition: 0.5s;
+    color: #fff;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  /* Efecto al pasar el mouse sobre el contenido (diets.html) */
+  .diet-window:hover .content {
+    left: -25px;
+    padding: 30px 20px;
+  }
+  
+  /* Título de la dieta (diets.html) */
+  .diet-window .content h2 {
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 10px;
+  }
+  
+  /* Descripción de la dieta (diets.html) */
+  .diet-window .content p {
+    font-size: 10px;
+    color: #ccc;
+    margin-bottom: 10px;
+    line-height: 1.4em;
+  }
+  
+  /* Enlace "Leer Más" (diets.html) */
+  .diet-window .content a {
+    display: inline-block;
+    font-size: 10px;
+    color: #fff;
+    background: #ff0000; /* Rojo retro */
+    border: 2px solid #fff;
+    padding: 8px 15px;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .diet-window .content a:hover {
+    background: #00ff00; /* Verde retro */
+  }
+  
+  /* Efecto al pasar el mouse sobre la ventana (diets.html) */
+  .diet-window:hover {
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Aplicar la animación pixel-glow a elementos interactivos (todas las páginas) */
+  .diet-window .content a:hover {
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Botón de cerrar sesión (profile.html) */
+  .logout-button {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #ff0000; /* Rojo retro */
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: background 0.2s ease-in-out;
+    z-index: 10;
+  }
+  
+  .logout-button:hover {
+    background: #00ff00; /* Verde retro */
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Ventana de la imagen de perfil (profile.html) */
+  .profile-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    width: 200px;
+    height: 200px;
+    text-align: center;
+    box-shadow: 4px 4px 0 #000;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Imagen de perfil (profile.html) */
+  .profile-picture {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    border-radius: 50%;
+    overflow: hidden;
+    cursor: pointer;
+    border: 4px solid #fff;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .profile-picture:hover {
+    transform: scale(1.05);
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  .profile-picture img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    image-rendering: pixelated; /* Para mantener el estilo pixelado si la imagen lo requiere */
+  }
+  
+  /* Ventana de estadísticas (profile.html) */
+  .stats-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 4px 4px 0 #000;
+    margin-bottom: 20px;
+  }
+  
+  /* Título de estadísticas (profile.html) */
+  .stats-window h2 {
+    font-size: 16px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 15px;
+  }
+  
+  /* Contenedor de estadísticas (profile.html) */
+  .stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Elemento de estadística (profile.html) */
+  .stat-item {
+    text-align: left;
+  }
+  
+  /* Título de cada estadística (profile.html) */
+  .stat-item h3 {
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 5px;
+  }
+  
+  /* Barra de estadística (profile.html) */
+  .stat-bar {
+    background: #000;
+    border: 2px solid #fff;
+    height: 20px;
+    width: 100%;
+    border-radius: 0; /* Bordes rectos para un look retro */
+    overflow: hidden;
+  }
+  
+  /* Relleno de la barra de estadística (profile.html) */
+  .stat-fill {
+    height: 100%;
+    background: #00ff00; /* Verde retro */
+    width: 0%;
+    transition: width 1s ease-in-out;
+  }
+  
+  /* Ventana de dinero (profile.html) */
+  .money-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 15px;
+    width: 250px;
+    text-align: center;
+    box-shadow: 4px 4px 0 #000;
+    margin-bottom: 20px;
+  }
+  
+  /* Dinero (profile.html) */
+  .money-window p {
+    font-size: 14px;
+    color: #ffd700; /* Amarillo dorado para las monedas */
+    text-shadow: 1px 1px 0 #000;
+  }
+  
+  /* Animación para el dinero (profile.html) */
+  .money-window:hover {
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Encabezado (missions.html) */
+  header {
+    background: #000;
+    border-bottom: 4px solid #fff;
+    width: 100%;
+    padding: 15px 0;
+    box-shadow: 4px 4px 0 #000;
+    text-align: center;
+  }
+  
+  /* Navegación (missions.html) */
+  nav {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  /* Botones de navegación (missions.html) */
+  .nav-button {
+    background: #ff0000; /* Rojo retro */
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    text-decoration: none;
+    box-shadow: 4px 4px 0 #000;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .nav-button:hover {
+    background: #00ff00; /* Verde retro */
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Sección de misiones (missions.html) */
+  .missions {
+    width: 90%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  /* Título de la sección (missions.html) */
+  .missions h2 {
+    font-size: 16px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 10px;
+  }
+  
+  /* Ventana de ejercicios (missions.html) */
+  .exercise-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 4px 4px 0 #000;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  /* Título de la categoría (missions.html) */
+  .exercise-window h3 {
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 15px;
+  }
+  
+  /* Lista de ejercicios (missions.html) */
+  .exercise-window ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  /* Elemento de la lista (missions.html) */
+  .exercise-window li {
+    padding: 10px 0;
+    border-bottom: 2px solid #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #ccc;
+    text-shadow: 1px 1px 0 #000;
+  }
+  
+  .exercise-window li:last-child {
+    border-bottom: none;
+  }
+  
+  /* Texto del ejercicio (missions.html) */
+  .exercise-window li span {
+    flex: 1;
+  }
+  
+  /* Botón de acción (missions.html) */
+  .action-button {
+    background: #ff0000; /* Rojo retro */
+    border: 2px solid #fff;
+    color: #fff;
+    padding: 8px 15px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .action-button:hover {
+    background: #00ff00; /* Verde retro */
+    animation: pixel-glow 0.5s infinite;
+  }
+  
+  /* Ventana de misiones completadas (missions.html) */
+  .completed-missions-window {
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 4px 4px 0 #000;
+    text-align: center;
+  }
+  
+  /* Lista de misiones completadas (missions.html) */
+  .completed-missions-window ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  /* Elemento de la lista de misiones completadas (missions.html) */
+  .completed-missions-window li {
+    padding: 10px 0;
+    border-bottom: 2px solid #fff;
+    font-size: 10px;
+    color: #ffd700; /* Amarillo dorado para destacar */
+    text-shadow: 1px 1px 0 #000;
+  }
+  
+  .completed-missions-window li:last-child {
+    border-bottom: none;
+  }
+  
+  /* Mensaje de misiones no completadas (missions.html) */
+  .completed-missions-window p {
+    font-size: 12px;
+    color: #ccc;
+    text-shadow: 1px 1px 0 #000;
+    margin-bottom: 15px;
+  }
+  
+  /* Pie de página (missions.html) */
+  footer {
+    background: #000;
+    border-top: 4px solid #fff;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    box-shadow: 0 -4px 0 #000;
+    margin-top: 20px;
+  }
+  
+  /* Texto del pie de página (missions.html) */
+  footer p {
+    font-size: 10px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+  }

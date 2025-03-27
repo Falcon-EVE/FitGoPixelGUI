@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dietas - FitGO</title>
+    <!-- Google Fonts para una fuente pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Usamos el styles.css principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="retro-container">
+        <!-- Título principal -->
+        <h1>Dietas</h1>
+
+        <!-- Contenedor de dietas -->
+        <div class="diet-windows">
+            <div class="diet-window">
+                <span></span>
+                <div class="content">
+                    <h2>1. Dieta Mediterránea</h2>
+                    <p>Desayuno: Yogur griego con frutas y nueces.</p>
+                    <p>Almuerzo: Ensalada de atún con espinacas, tomate, aceitunas.</p>
+                    <p>Cena: Pechuga de pollo con verduras al vapor y almendras.</p>
+                    <a href="#">Leer Más</a>
+                </div>
+            </div>
+            <div class="diet-window">
+                <span></span>
+                <div class="content">
+                    <h2>2. Dieta Baja en Carbohidratos</h2>
+                    <p>Desayuno: Huevos revueltos con espinacas y aguacate.</p>
+                    <p>Almuerzo: Pechuga de pollo con ensalada de brócoli y pepino.</p>
+                    <p>Cena: Pescado a la parrilla con espárragos y zanahorias.</p>
+                    <a href="#">Leer Más</a>
+                </div>
+            </div>
+            <div class="diet-window">
+                <span></span>
+                <div class="content">
+                    <h2>3. Dieta Vegetariana</h2>
+                    <p>Desayuno: Avena con leche de almendra, plátano y almendras.</p>
+                    <p>Almuerzo: Tofu a la plancha con arroz integral y verduras.</p>
+                    <p>Cena: Sopa de lentejas con espinacas y zanahorias.</p>
+                    <a href="#">Leer Más</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de regresar -->
+        <a href="/" class="back-button">Regresar</a>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

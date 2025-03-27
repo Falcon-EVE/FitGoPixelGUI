@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misiones - FitGo</title>
+    <!-- Google Fonts para una fuente pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <!-- Usamos el styles.css principal -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="retro-container">
+        <!-- Encabezado -->
+        <header>
+            <h1>🏆 Misiones y Ejercicios</h1>
+            <nav>
+                <a href="{{ url_for('profile') }}" class="nav-button">Perfil</a>
+                <a href="{{ url_for('logout') }}" class="nav-button">Cerrar Sesión</a>
+            </nav>
+        </header>
+
+        <!-- Sección de misiones -->
+        <section class="missions">
+            <h2>Ejercicios Disponibles</h2>
+
+            <!-- Categoría: Ejercicios de Fuerza -->
+            <div class="exercise-window">
+                <h3>🏋️‍♂️ Ejercicios de Fuerza</h3>
+                <ul>
+                    {% for ejercicio in ejercicios_fuerza %}
+                        <li>
+                            <span><strong>{{ ejercicio['nombre'] }}</strong> - {{ ejercicio['descripcion'] }} - Duración: {{ ejercicio['duracion'] }} min</span>
+                            <form action="{{ url_for('completar_ejercicio') }}" method="POST">
+                                <input type="hidden" name="id_ejercicio" value="{{ ejercicio['id_ejercicio'] }}">
+                                <button type="submit" class="action-button">Completar</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Categoría: Ejercicios de Agilidad -->
+            <div class="exercise-window">
+                <h3>🏃‍♂️ Ejercicios de Agilidad</h3>
+                <ul>
+                    {% for ejercicio in ejercicios_agilidad %}
+                        <li>
+                            <span><strong>{{ ejercicio['nombre'] }}</strong> - {{ ejercicio['descripcion'] }} - Duración: {{ ejercicio['duracion'] }} min</span>
+                            <form action="{{ url_for('completar_ejercicio') }}" method="POST">
+                                <input type="hidden" name="id_ejercicio" value="{{ ejercicio['id_ejercicio'] }}">
+                                <button type="submit" class="action-button">Completar</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Categoría: Ejercicios de Resistencia -->
+            <div class="exercise-window">
+                <h3>💪 Ejercicios de Resistencia</h3>
+                <ul>
+                    {% for ejercicio in ejercicios_resistencia %}
+                        <li>
+                            <span><strong>{{ ejercicio['nombre'] }}</strong> - {{ ejercicio['descripcion'] }} - Duración: {{ ejercicio['duracion'] }} min</span>
+                            <form action="{{ url_for('completar_ejercicio') }}" method="POST">
+                                <input type="hidden" name="id_ejercicio" value="{{ ejercicio['id_ejercicio'] }}">
+                                <button type="submit" class="action-button">Completar</button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Misiones Completadas -->
+            <div class="completed-missions-window">
+                <h2>🎯 Misiones Completadas</h2>
+                {% if misiones_completadas %}
+                    <ul>
+                        {% for mision in misiones_completadas %}
+                            <li>
+                                <span><strong>{{ mision['nombre'] }}</strong> - Completada el {{ mision['fecha_completada'] }} 🎉</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Aún no has completado ninguna misión.</p>
+                {% endif %}
+                <form action="{{ url_for('verificar_misiones') }}" method="GET">
+                    <button type="submit" class="action-button">Verificar Misiones</button>
+                </form>
+            </div>
+
+            <!-- Botón de regresar -->
+            <a href="/" class="back-button">Regresar</a>
+        </section>
+
+        <!-- Pie de página -->
+        <footer>
+            <p>© 2025 FitGo - ¡Sigue entrenando para ganar recompensas! 💪</p>
+        </footer>
+    </div>
+</body>
+</html>

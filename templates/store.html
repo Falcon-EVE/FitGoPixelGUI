@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda - FitGo</title>
+    <!-- Google Fonts para una fuente pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="retro-container">
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Título principal -->
+        <h1>🛒 Tienda FitGo</h1>
+
+        <!-- Monedas del usuario -->
+        <div class="money-window">
+            <p>💰 Tus Monedas: {{ monedas }}</p>
+        </div>
+
+        <!-- Lista de productos -->
+        <div class="product-windows">
+            {% for product in products %}
+                <div class="product-window">
+                    <div class="product-image">
+                        <img src="{{ url_for('static', filename=product.imagen) }}" alt="{{ product.nombre }}">
+                    </div>
+                    <h3>{{ product.nombre }}</h3>
+                    <p>💰 {{ product.precio }} Monedas</p>
+                    <p class="stock">📦 Stock: {{ product.stock }}</p>
+                    <form action="{{ url_for('add_to_cart') }}" method="POST">
+                        <input type="hidden" name="producto_id" value="{{ product.id }}">
+                        <input type="number" name="cantidad" value="1" min="1" max="{{ product.stock }}" required>
+                        <button type="submit" class="add-to-cart">Añadir al Carrito</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Carrito -->
+        <div class="cart-window">
+            <h2>🛍️ Tu Carrito</h2>
+            {% if carrito %}
+                <ul>
+                    {% for item in carrito %}
+                        <li>{{ item.nombre }} - {{ item.cantidad }} x {{ item.precio }} = {{ item.cantidad * item.precio }} Monedas</li>
+                    {% endfor %}
+                </ul>
+                <p>Total: {{ total_carrito }} Monedas</p>
+                <form action="{{ url_for('checkout') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="action-button">Confirmar Compra</button>
+                </form>
+                <form action="{{ url_for('clear_cart') }}" method="POST" style="display: inline;">
+                    <button type="submit" class="action-button clear-cart-button">Vaciar Carrito</button>
+                </form>
+            {% else %}
+                <p>Tu carrito está vacío.</p>
+            {% endif %}
+        </div>
+
+        <!-- Regresar al inicio -->
+        <a href="/" class="back-button">Regresar</a>
+    </div>
+</body>
+</html>

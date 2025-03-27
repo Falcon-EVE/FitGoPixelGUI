@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejercicios - FitGO</title>
+    <!-- Google Fonts para una fuente pixelada -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="retro-container">
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Título principal -->
+        <h1>¡A Entrenar, Pequeños Héroes!</h1>
+
+        <!-- Mostrar monedas actuales -->
+        <div class="money-window">
+            <p>💰 Monedas: <span id="monedas">{{ monedas }}</span></p>
+        </div>
+
+        <!-- Personaje guía -->
+        <div class="trainer-character">
+            <img src="{{ url_for('static', filename='trainer.png') }}" alt="Entrenador">
+            <div class="speech-bubble">
+                <p>¡Vamos a ponernos fuertes! Elige un ejercicio y comienza la aventura.</p>
+            </div>
+        </div>
+
+        <!-- Lista de ejercicios (ventanas grandes) -->
+        <div class="exercise-windows">
+            <div class="exercise-window" id="exercise1">
+                <h3>🌟 Sentadillas</h3>
+                <p>¡Salta como un canguro!</p>
+                <button onclick="startExercise('Sentadillas', 'exercise1')">¡Comenzar!</button>
+                <div class="gif-container" style="display: none;">
+                    <img src="{{ url_for('static', filename='ejemplo1.gif') }}" alt="Sentadillas GIF">
+                </div>
+            </div>
+            <div class="exercise-window" id="exercise2">
+                <h3>🌟 Flexiones</h3>
+                <p>¡Fuerte como un león!</p>
+                <button onclick="startExercise('Flexiones', 'exercise2')">¡Comenzar!</button>
+                <div class="gif-container" style="display: none;">
+                    <img src="{{ url_for('static', filename='ejemplo1.gif') }}" alt="Flexiones GIF">
+                </div>
+            </div>
+            <div class="exercise-window" id="exercise3">
+                <h3>🌟 Abdominales</h3>
+                <p>¡Rápido como un guepardo!</p>
+                <button onclick="startExercise('Abdominales', 'exercise3')">¡Comenzar!</button>
+                <div class="gif-container" style="display: none;">
+                    <img src="{{ url_for('static', filename='ejemplo1.gif') }}" alt="Abdominales GIF">
+                </div>
+            </div>
+        </div>
+
+        <!-- Temporizador circular -->
+        <div class="timer-container">
+            <div class="timer-circle">
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring-circle" stroke="#00ff00" stroke-width="10" fill="transparent" r="50" cx="60" cy="60"/>
+                </svg>
+                <div class="timer-text">
+                    <p id="timer-display">1:00</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regresar al inicio -->
+        <a href="/" class="back-button">Regresar</a>
+    </div>
+
+    <!-- Enlazar los archivos JS -->
+    <script src="{{ url_for('static', filename='menu.js') }}"></script>
+    <script src="{{ url_for('static', filename='ejer.js') }}"></script>
+    <script>
+        // Ajustar el temporizador circular
+        const circle = document.querySelector('.progress-ring-circle');
+        const radius = circle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        circle.style.strokeDasharray = `${circumference} ${circumference}`;
+        circle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+        }
+
+        // Función para actualizar las monedas en la interfaz
+        function updateMonedas() {
+            fetch('/get_monedas', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('monedas').textContent = data.monedas;
+                } else {
+                    console.error('Error al obtener monedas:', data.message);
+                }
+            })
+            .catch(error => console.error('Error al actualizar monedas:', error));
+        }
+
+        // Función para iniciar el ejercicio y el temporizador
+        function startExercise(exerciseName, exerciseId) {
+            // Mostrar el GIF
+            const gifContainer = document.querySelector(`#${exerciseId} .gif-container`);
+            gifContainer.style.display = 'block';
+
+            // Actualizar el mensaje del entrenador
+            document.querySelector('.speech-bubble p').textContent = `¡Vamos con ${exerciseName}! ¡Tú puedes!`;
+
+            // Deshabilitar todos los botones "Comenzar" para evitar múltiples temporizadores
+            document.querySelectorAll('.exercise-window button').forEach(button => {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+            });
+
+            // Iniciar el temporizador
+            let timeLeft = 60;
+            const timerDisplay = document.getElementById('timer-display');
+
+            const interval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                setProgress((60 - timeLeft) / 60 * 100);
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerDisplay.textContent = '¡Listo!';
+                    document.querySelector('.speech-bubble p').textContent = '¡Bien hecho, ganaste 100 monedas!';
+
+                    // Enviar solicitud al backend para sumar las monedas
+                    fetch('/complete_exercise', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `exercise_type=${exerciseName}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Monedas añadidas con éxito');
+                            // Actualizar las monedas en la interfaz
+                            updateMonedas();
+                            alert('¡Ejercicio completado! Has ganado 100 monedas.');
+                        } else {
+                            console.error('Error al añadir monedas:', data.message);
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error al procesar el ejercicio. Por favor, intenta de nuevo.');
+                    });
+
+                    // Habilitar los botones nuevamente después de completar
+                    setTimeout(() => {
+                        document.querySelectorAll('.exercise-window button').forEach(button => {
+                            button.disabled = false;
+                            button.style.opacity = '1';
+                        });
+                    }, 3000);
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
