@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FitGo{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/FITGOLOGO.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}page-index{% endblock %}">
+    <div class="header">
+        <div class="header__logo">
+            <a href="/">
+                <img src="{{ url_for('static', filename='images/FITGOLOGO.png') }}" alt="FitGo Logo">
+            </a>
+        </div>
+        <nav class="navbar">
+            <ul class="navbar__menu">
+                <li class="navbar__item"><a href="{{ url_for('index') }}" class="navbar__link"><i data-feather="home"></i><span>Home</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('play') }}" class="navbar__link"><i data-feather="play"></i><span>Play</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('store') }}" class="navbar__link"><i data-feather="shopping-cart"></i><span>Tienda</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('diets') }}" class="navbar__link"><i data-feather="coffee"></i><span>Dietas</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('missions') }}" class="navbar__link"><i data-feather="target"></i><span>Misiones</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('inventory') }}" class="navbar__link"><i data-feather="archive"></i><span>Inventario</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('profile') }}" class="navbar__link"><i data-feather="user"></i><span>Perfil</span></a></li>
+                <li class="navbar__item"><a href="{{ url_for('logout') }}" class="navbar__link"><i data-feather="log-out"></i><span>Salir</span></a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="retro-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-message">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

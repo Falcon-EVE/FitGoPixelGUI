@@ -1,63 +1,83 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - FitGo</title>
-    <!-- Google Fonts para una fuente pixelada -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="retro-container">
-        <!-- Título principal -->
-        <h1>Perfil de {{ usuario.nickname }}</h1>
+{% extends 'base.html' %}
+{% block title %}Perfil - FitGo{% endblock %}
+{% block body_class %}page-profile{% endblock %}
 
-        <!-- Ventana de la imagen de perfil -->
-        <div class="profile-window">
-            <div class="profile-picture">
-                <img src="{{ url_for('static', filename='default_profile.png') }}" alt="Foto de perfil">
-            </div>
+{% block content %}
+<div id="profile-page-container" class="retro-container">
+    <!-- Título principal -->
+    <h1 class="profile-title">Perfil de {{ usuario.nickname }}</h1>
+
+    <!-- Ventana de la imagen de perfil -->
+    <div class="profile-window">
+        <div class="profile-picture" id="profilePicture">
+            <img src="{{ usuario.profile_picture if usuario.profile_picture else url_for('static', filename='default_profile.png') }}" alt="Foto de perfil" id="profileImage">
+            <form id="uploadForm" action="{{ url_for('upload_profile') }}" method="POST" enctype="multipart/form-data">
+                <input type="file" name="profile_picture" id="profileInput" accept="image/*" style="display: none;">
+            </form>
         </div>
-
-        <!-- Ventana de estadísticas -->
-        <div class="stats-window">
-            <h2>📊 Estadísticas</h2>
-            <div class="stats">
-                <div class="stat-item">
-                    <h3>Fuerza: {{ usuario.fuerza }}</h3>
-                    <div class="stat-bar">
-                        <div class="stat-fill" style="width: {{ usuario.fuerza if usuario.fuerza <= 100 else 100 }}%;">
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <h3>Agilidad: {{ usuario.agilidad }}</h3>
-                    <div class="stat-bar">
-                        <div class="stat-fill" style="width: {{ usuario.agilidad }}%;"></div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <h3>Resistencia: {{ usuario.resistencia }}</h3>
-                    <div class="stat-bar">
-                        <div class="stat-fill" style="width: {{ usuario.resistencia }}%;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Ventana de dinero -->
-        <div class="money-window">
-            <p>💰 Monedas: {{ usuario.monedas }}</p>
-        </div>
-
-        <!-- Enlace para ver el inventario -->
-        <a href="{{ url_for('inventory') }}" class="nav-button">Ver Inventario</a>
-
-        <!-- Botón de regresar al pueblo -->
-        <a href="{{ url_for('index') }}" class="back-button">Regresar al Pueblo</a>
-
-        <!-- Botón de cerrar sesión -->
-        <a href="{{ url_for('logout') }}" class="logout-button">Cerrar Sesión</a>
     </div>
-</body>
-</html>
+
+    <!-- Ventana de estadísticas -->
+    <div class="stats-window">
+        <h2>📊 Estadísticas</h2>
+        <div class="stats">
+            <div class="stat-item">
+                <h3>Fuerza: {{ usuario.fuerza }}</h3>
+                <div class="stat-bar">
+                    <div class="stat-fill" style="width: {{ usuario.fuerza if usuario.fuerza <= 100 else 100 }}%;"></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <h3>Agilidad: {{ usuario.agilidad }}</h3>
+                <div class="stat-bar">
+                    <div class="stat-fill" style="width: {{ usuario.agilidad if usuario.agilidad <= 100 else 100 }}%;"></div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <h3>Resistencia: {{ usuario.resistencia }}</h3>
+                <div class="stat-bar">
+                    <div class="stat-fill" style="width: {{ usuario.resistencia if usuario.resistencia <= 100 else 100 }}%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventana de dinero -->
+    <div class="money-window">
+        <p>💰 Monedas: {{ usuario.monedas }}</p>
+    </div>
+
+    <!-- Botón de cerrar sesión -->
+    <a href="{{ url_for('logout') }}" class="logout-button">Cerrar Sesión</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Hacer que el área de la foto sea clicable
+    const profilePicture = document.getElementById('profilePicture');
+    const profileInput = document.getElementById('profileInput');
+    const profileImage = document.getElementById('profileImage');
+    const uploadForm = document.getElementById('uploadForm');
+
+    profilePicture.addEventListener('click', () => {
+        profileInput.click(); // Simula clic en el input oculto
+    });
+
+    // Vista previa de la imagen y envío automático
+    profileInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            // Vista previa
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                profileImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Enviar el formulario automáticamente
+            uploadForm.submit();
+        }
+    });
+</script>
+{% endblock %}

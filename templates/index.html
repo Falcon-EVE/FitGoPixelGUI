@@ -1,63 +1,236 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitGO</title>
+{% extends "base.html" %}
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='FITGOLOGO.png') }}">
+{% block title %}FitGO - Inicio{% endblock %}
+{% block body_class %}page-index{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+{% endblock %}
 
-    <!-- Google Fonts para una fuente pixelada -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+{% block content %}
+<style>
+    /* Fondo para la página de inicio (video) */
+    body.page-index {
+        background: var(--dark-bg);
+        min-height: 100vh;
+        font-family: var(--pixel-font);
+        color: var(--light-text);
+        overflow-x: hidden;
+        position: relative;
+    }
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="village-container">
-        <!-- Mapa de fondo -->
-        <div class="village-map">
-            <!-- Logo en el centro -->
-            <img src="{{ url_for('static', filename='FITGOLOGO.png') }}" alt="Logo" class="village-logo">
+    /* Video de fondo */
+    body.page-index::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        overflow: hidden;
+    }
 
-            <!-- Barra lateral izquierda -->
-            <div class="sidebar sidebar-left">
-                <div class="village-area" onclick="window.location.href='/play'">
-                    <img src="{{ url_for('static', filename='fc4.png') }}" alt="Play" class="area-icon">
-                    <span class="tooltip">Ejercicios</span>
-                </div>
-                <div class="village-area" onclick="window.location.href='/store'">
-                    <img src="{{ url_for('static', filename='fc48.png') }}" alt="Store" class="area-icon">
-                    <span class="tooltip">Tienda</span>
-                </div>
-                <div class="village-area" onclick="window.location.href='/diets'">
-                    <img src="{{ url_for('static', filename='fc53.png') }}" alt="Diets" class="area-icon">
-                    <span class="tooltip">Dietas</span>
-                </div>
+    #background-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -2;
+    }
+
+    /* Contenedor principal */
+    .village-container {
+        width: 100%;
+        height: 100vh;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .village-map {
+    width: 100%;
+    height: 100vh;
+    background-image: url('{{ url_for("static", filename="videos/animatedindex.gif") }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: var(--dark-bg);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 0;
+}
+
+    /* Overlay para mejorar legibilidad */
+    .village-map::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.65);
+        z-index: 0;
+    }
+
+   .village-logo {
+    position: relative;
+    z-index: 1;
+    max-width: 70%;
+    height: auto;
+    margin-top: 200px;
+    animation: slideInUp 0.6s ease-out;
+}
+
+    .hexagon-menu {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: -100px;
+}
+
+    .hexagon-item {
+        animation: slideInUp 0.6s ease-out;
+    }
+</style>
+
+<div class="village-container">
+    <div class="village-map">
+        <!-- Video de fondo -->
+        <video id="background-video" autoplay loop muted playsinline>
+            <source src="{{ url_for('static', filename='videos/animatedindex.gif') }}" type="video/mp4">
+            Tu navegador no soporta videos.
+        </video>
+
+        <img src="{{ url_for('static', filename='images/FITGOLOGO.png') }}" alt="Logo" class="village-logo">
+        
+        <div class="hexagon-menu clear">
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a href="{{ url_for('play') }}" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc4.png') }}" alt="Play" class="hex-icon">
+                        </span>
+                        <span class="title">Ejercicios</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
             </div>
-
-            <!-- Barra lateral derecha -->
-            <div class="sidebar sidebar-right">
-                <div class="village-area" onclick="window.location.href='/missions'">
-                    <img src="{{ url_for('static', filename='fc8.png') }}" alt="Missions" class="area-icon">
-                    <span class="tooltip">Misiones</span>
-                </div>
-                <div class="village-area" onclick="window.location.href='/inventory'">
-                    <img src="{{ url_for('static', filename='fc6.png') }}" alt="Inventory" class="area-icon">
-                    <span class="tooltip">Inventario</span>
-                </div>
-                <div class="village-area" onclick="window.location.href='/profile'">
-                    <img src="{{ url_for('static', filename='fc5.png') }}" alt="Profile" class="area-icon">
-                    <span class="tooltip">Perfil</span>
-                </div>
-                <div class="village-area" onclick="exitApp()">
-                    <img src="{{ url_for('static', filename='fc3.png') }}" alt="Exit" class="area-icon">
-                    <span class="tooltip">Salir</span>
-                </div>
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a href="{{ url_for('store') }}" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc48.png') }}" alt="Store" class="hex-icon">
+                        </span>
+                        <span class="title">Tienda</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a href="{{ url_for('diets') }}" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc53.png') }}" alt="Diets" class="hex-icon">
+                        </span>
+                        <span class="title">Dietas</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a href="{{ url_for('missions') }}" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc8.png') }}" alt="Missions" class="hex-icon">
+                        </span>
+                        <span class="title">Misiones</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a href="{{ url_for('inventory') }}" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc6.png') }}" alt="Inventory" class="hex-icon">
+                        </span>
+                        <span class="title">Inventario</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a href="{{ url_for('profile') }}" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc5.png') }}" alt="Profile" class="hex-icon">
+                        </span>
+                        <span class="title">Perfil</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
+            </div>
+            <div class="hexagon-item">
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <div class="hex-item"><div></div><div></div><div></div></div>
+                <a onclick="exitApp()" class="hex-content">
+                    <span class="hex-content-inner">
+                        <span class="icon">
+                            <img src="{{ url_for('static', filename='images/fc3.png') }}" alt="Exit" class="hex-icon">
+                        </span>
+                        <span class="title">Salir</span>
+                    </span>
+                    <svg viewBox="0 0 173.20508075688772 200" height="200" width="174" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M86.60254037844386 0L173.20508075688772 50L173.20508075688772 150L86.60254037844386 200L0 150L0 50Z" fill="#1e2530"></path>
+                    </svg>
+                </a>
             </div>
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
-</html>
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        function exitApp() {
+            alert('Saliendo de la aplicación...');
+            window.location.href = '{{ url_for("logout") }}';
+        }
+    </script>
+{% endblock %}

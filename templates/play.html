@@ -1,188 +1,732 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ejercicios - FitGO</title>
-    <!-- Google Fonts para una fuente pixelada -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="retro-container">
-        <!-- Mensajes flash -->
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-message">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+{% extends "base.html" %}
 
-        <!-- Título principal -->
-        <h1>¡A Entrenar, Futura humanidad!</h1>
+{% block title %}Ejercicios - FitGo{% endblock %}
+{% block body_class %}page-play{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Add Vanilla Tilt.js for 3D tilt effect -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+{% endblock %}
 
-        <!-- Mostrar monedas actuales -->
-        <div class="money-window">
-            <p>💰 Monedas: <span id="monedas">{{ monedas }}</span></p>
+{% block content %}
+<style>
+    /* Fix background for page-play */
+    body.page-play {
+        background: var(--dark-bg) url('{{ url_for("static", filename="videos/game-bg.gif") }}') no-repeat center center fixed;
+        background-size: cover;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Overlay for better readability */
+    body.page-play::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: -1;
+    }
+
+    /* Glowing effect for cards */
+    .card::after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+        z-index: -2;
+        border-radius: 2.25rem;
+        animation: pulse 3s ease-in-out infinite;
+    }
+
+    .green::after {
+        background: radial-gradient(circle, rgba(1, 195, 168, 0.3) 0%, transparent 70%);
+    }
+    .orange::after {
+        background: radial-gradient(circle, rgba(255, 183, 65, 0.3) 0%, transparent 70%);
+    }
+    .red::after {
+        background: radial-gradient(circle, rgba(166, 61, 42, 0.3) 0%, transparent 70%);
+    }
+    .blue::after {
+        background: radial-gradient(circle, rgba(24, 144, 255, 0.3) 0%, transparent 70%);
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 0.3; transform: scale(1.03); }
+    }
+
+    /* Zoom animation for exercise start */
+    .card.zoom-out {
+        animation: zoomOut 0.5s ease-in-out forwards;
+    }
+
+    @keyframes zoomOut {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    /* Smooth progress ring */
+    .progress-ring-circle {
+        stroke-dasharray: 314;
+        stroke-dashoffset: 314;
+        transition: stroke-dashoffset 0.1s linear;
+    }
+</style>
+
+<div id="warmup-modal" class="modal">
+    <div class="modal-content">
+        <h2>¿Ya hiciste tu calentamiento?</h2>
+        <div class="modal-buttons">
+            <button id="warmup-no" class="retro-button">No</button>
+            <button id="warmup-yes" class="retro-button">Sí</button>
         </div>
+    </div>
+</div>
 
-        <!-- Personaje guía -->
+<div id="warmup-video-container" style="display: none;">
+    <video id="warmup-video" controls>
+        <source src="{{ url_for('static', filename='videos/warmup.mp4') }}" type="video/mp4">
+        Tu navegador no soporta videos.
+    </video>
+    <button id="continue-button" class="retro-button">Continuar</button>
+</div>
+
+<div id="exercise-content">
+    <h1>¡A Entrenar, Futura humanidad!</h1>
+
+    <!-- Contenedor para alinear la imagen del usuario y la ventana de monedas -->
+    <div class="trainer-money-layout-container">
         <div class="trainer-character">
-            <img src="{{ url_for('static', filename='trainer.png') }}" alt="Entrenador">
-            <div class="speech-bubble">
-                <p>¡Vamos a ponernos fuertes! Elige un ejercicio y comienza lo bueno.</p>
+            <img src="{{ usuario.profile_picture if usuario.profile_picture else url_for('static', filename='images/default_profile.png') }}" alt="Foto de perfil del usuario">
+        </div>
+        <div class="money-window">
+            <p>💰 Monedas: <span id="monedas">{{ usuario.monedas }}</span></p>
+        </div>
+    </div>
+
+    <section class="exercise-cards-section">
+        <div class="card green" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-perspective="800">
+            <div class="card-header">
+                <div class="date">Fuerza</div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="card-body">
+                <h3>Sentadillas</h3>
+                <p>¡Hasta abajo para unas piernas de acero!</p>
+                <div class="progress">
+                    <span>Intensidad</span>
+                    <div class="progress-bar"></div>
+                    <span>80%</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <ul>
+                    <li><img src="https://images.pexels.com/photos/1092878/pexels-photo-1092878.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo sentadillas"></li>
+                    <li><img src="https://images.pexels.com/photos/2294361/pexels-photo-2294361.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo sentadillas"></li>
+                    <a href="#" class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </ul>
+                <button onclick="startExercise('Sentadillas', 'exercise1', '{{ url_for('static', filename='videos/sentadillas.mp4') }}', this)" class="btn-countdown">¡Comenzar!</button>
             </div>
         </div>
 
-        <!-- Lista de ejercicios (ventanas grandes) -->
-        <div class="exercise-windows">
-            <div class="exercise-window" id="exercise1">
-                <h3>🌟 Sentadillas</h3>
-                <p>¡Hasta abajo!</p>
-                <button onclick="startExercise('Sentadillas', 'exercise1')">¡Comenzar!</button>
-                <div class="gif-container" style="display: none;">
-                    <img src="{{ url_for('static', filename='sentadillas1.gif') }}" alt="Sentadillas1.gif">
+        <div class="card orange" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-perspective="800">
+            <div class="card-header">
+                <div class="date">Resistencia</div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="card-body">
+                <h3>Flexiones</h3>
+                <p>¡Bien abiertos los brazos para un pecho fuerte!</p>
+                <div class="progress">
+                    <span>Intensidad</span>
+                    <div class="progress-bar"></div>
+                    <span>70%</span>
                 </div>
             </div>
-            <div class="exercise-window" id="exercise2">
-                <h3>🌟 Saltos de tijera</h3>
-                <p>¡Bien abiertos los brazos!</p>
-                <button onclick="startExercise('Flexiones', 'exercise2')">¡Comenzar!</button>
-                <div class="gif-container" style="display: none;">
-                    <img src="{{ url_for('static', filename='saltostijera1.gif') }}" alt="saltostijera1.gif">
-                </div>
-            </div>
-            <div class="exercise-window" id="exercise3">
-                <h3>🌟 Lagartijas</h3>
-                <p>¡Venga, demuestra tu fuerza!</p>
-                <button onclick="startExercise('Abdominales', 'exercise3')">¡Comenzar!</button>
-                <div class="gif-container" style="display: none;">
-                    <img src="{{ url_for('static', filename='lagartijas1.gif') }}" alt="lagartijas1.gif">
-                </div>
+            <div class="card-footer">
+                <ul>
+                    <li><img src="https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo flexiones"></li>
+                    <li><img src="https://images.pexels.com/photos/38630/bodybuilder-weight-training-stress-38630.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo flexiones"></li>
+                    <a href="#" class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </ul>
+                <button onclick="startExercise('Flexiones', 'exercise2', '{{ url_for('static', filename='videos/saltostijera.mp4') }}', this)" class="btn-countdown">¡Comenzar!</button>
             </div>
         </div>
 
-        <!-- Temporizador circular -->
+        <div class="card red" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-perspective="800">
+            <div class="card-header">
+                <div class="date">Core</div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="card-body">
+                <h3>Abdominales</h3>
+                <p>¡Venga, demuestra tu fuerza en el abdomen!</p>
+                <div class="progress">
+                    <span>Intensidad</span>
+                    <div class="progress-bar"></div>
+                    <span>60%</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <ul>
+                    <li><img src="https://images.pexels.com/photos/799166/pexels-photo-799166.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo abdominales"></li>
+                    <li><img src="https://images.pexels.com/photos/2261477/pexels-photo-2261477.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo abdominales"></li>
+                    <a href="#" class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </ul>
+                <button onclick="startExercise('Abdominales', 'exercise3', '{{ url_for('static', filename='videos/lagartijas.mp4') }}', this)" class="btn-countdown">¡Comenzar!</button>
+            </div>
+        </div>
+
+        <div class="card blue" data-tilt data-tilt-max="8" data-tilt-speed="400" data-tilt-perspective="800">
+            <div class="card-header">
+                <div class="date">Cardio</div>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M10.5 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm0 6a1.5 1.5 0" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="card-body">
+                <h3>Saltos de Tijera</h3>
+                <p>¡Aumenta tus pulsaciones y quema calorías!</p>
+                <div class="progress">
+                    <span>50%</span>
+                    <div class="progress-bar"></div>
+                    <span>90%</span>
+                </div>
+            </div>
+            <div class="card-footer">
+                <ul>
+                    <li><img src="https://images.pexels.com/photos/416778/pexels-photo-416778.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Persona haciendo saltos de tijera"></li>
+                    <li><img src="https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt=""></li>
+                    <a href="#" class="btn-add">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75 0 0 1 0 1.5h-6.75v6.75a.75 0 0 1-1.5 0 v-6.75H4.5a.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                </ul>
+                <button onclick="startExercise('Saltos de Tijera', 'exercise4', '{{ url_for('static', filename='videos/saltostijera_cardio.mp4') }}', this)" class="btn-countdown">¡Comenzar!</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<div id="exercise-video-container" style="display: none;">
+    <div class="video-and-timer">
+        <div class="video-wrapper">
+            <video id="exercise-video" controls loop style="display: none;">
+                <source src="" type="video/mp4">
+                Tu navegador no soporta videos.
+            </video>
+        </div>
         <div class="timer-container">
             <div class="timer-circle">
                 <svg class="progress-ring" width="120" height="120">
                     <circle class="progress-ring-circle" stroke="#00ff00" stroke-width="10" fill="transparent" r="50" cx="60" cy="60"/>
                 </svg>
                 <div class="timer-text">
-                    <p id="timer-display">1:00</p>
+                    <span id="timer">1:00</span>
                 </div>
             </div>
         </div>
-
-        <!-- Regresar al inicio -->
-        <a href="/" class="back-button">Regresar</a>
     </div>
+</div>
 
-    <!-- Enlazar los archivos JS -->
-    <script src="{{ url_for('static', filename='menu.js') }}"></script>
-    <script src="{{ url_for('static', filename='ejer.js') }}"></script>
-    <script>
-        // Ajustar el temporizador circular
-        const circle = document.querySelector('.progress-ring-circle');
-        const radius = circle.r.baseVal.value;
-        const circumference = 2 * Math.PI * radius;
+<a href="/" class="home-button">Regresar</a>
+{% endblock %}
 
-        circle.style.strokeDasharray = `${circumference} ${circumference}`;
-        circle.style.strokeDashoffset = circumference;
+{% block extra_js %}
+<script>
+    // Inline CSS (merged and optimized)
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600&display=swap');
 
-        function setProgress(percent) {
-            const offset = circumference - (percent / 100) * circumference;
-            circle.style.strokeDashoffset = offset;
+        :root {
+            --dark-bg: #232323;
+            --light-text: #ffffff;
+            --clr-green: #01c3a8;
+            --clr-orange: #ffb741;
+            --clr-red: #a63d2a;
+            --clr-blue: #1890ff;
         }
 
-        // Función para actualizar las monedas en la interfaz
-        function updateMonedas() {
-            fetch('/get_monedas', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('monedas').textContent = data.monedas;
-                } else {
-                    console.error('Error al obtener monedas:', data.message);
-                }
-            })
-            .catch(error => console.error('Error al actualizar monedas:', error));
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        // Función para iniciar el ejercicio y el temporizador
-        function startExercise(exerciseName, exerciseId) {
-            // Mostrar el GIF
-            const gifContainer = document.querySelector(`#${exerciseId} .gif-container`);
-            gifContainer.style.display = 'block';
+        a {
+            text-decoration: none;
+            display: inline-block;
+        }
 
-            // Actualizar el mensaje del entrenador
-            document.querySelector('.speech-bubble p').textContent = `¡Vamos con ${exerciseName}! ¡Tú puedes!`;
+        h1 {
+            color: var(--light-text);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 var(--dark-bg);
+        }
 
-            // Deshabilitar todos los botones "Comenzar" para evitar múltiples temporizadores
-            document.querySelectorAll('.exercise-window button').forEach(button => {
-                button.disabled = true;
-                button.style.opacity = '0.5';
-            });
+        .trainer-money-layout-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
 
-            // Iniciar el temporizador
+        .trainer-character img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid var(--clr-green);
+            box-shadow: 0 0 15px rgba(1, 195, 168, 0.5);
+            object-fit: cover;
+        }
+
+        .money-window {
+            background: rgba(40, 44, 52, 0.9);
+            border: 3px solid var(--clr-blue);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Press Start 2P', cursive;
+            color: var(--light-text);
+            box-shadow: 0 0 10px rgba(24, 144, 255, 0.5);
+        }
+
+        .money-window p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .exercise-cards-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            position: relative;
+            max-width: 300px;
+            min-height: 150px;
+            width: 100%;
+            background: rgba(30, 37, 48, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header .date {
+            color: var(--light-text);
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+        }
+
+        .card-header svg {
+            width: 20px;
+            color: var(--light-text);
+        }
+
+        .card-body {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .card-body h3 {
+            color: var(--light-text);
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .card-body p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+        }
+
+        .progress {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: var(--light-text);
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            border-radius: 5px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-footer ul {
+            display: flex;
+            gap: 2px;
+            list-style: none;
+        }
+
+        .card-footer img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .btn-add {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: var(--light-text);
+        }
+
+        .btn-add svg {
+            width: 16px;
+        }
+
+        .btn-countdown {
+            background: linear-gradient(90deg, var(--clr-blue), var(--clr-green));
+            color: var(--light-text);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .btn-countdown:hover {
+            box-shadow: 0 0 10px rgba(24, 255, 168, 0.5);
+        }
+
+        /* Card-specific styles */
+        .green .progress-bar::after { width: 80%; background: var(--clr-green); }
+        .green .btn-add { background: var(--clr-green); }
+        .orange .progress-bar::after { width: 70%; background: var(--clr-orange); }
+        .orange .btn-add { background: var(--clr-orange); }
+        .red .progress-bar::after { width: 60%; background: var(--clr-red); }
+        .red .btn-add { background: var(--clr-red); }
+        .blue .progress-bar::after { width: 90%; background: var(--clr-blue); }
+        .blue .btn-add { background: var(--clr-blue); }
+
+        /* Modal and video styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(40, 44, 52, 0.9);
+            padding: 20px;
+            border: 3px solid var(--clr-green);
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: center;
+            color: var(--light-text);
+            box-shadow: 0 0 15px rgba(1, 195, 168, 0.5);
+        }
+
+        .modal-content h2 {
+            font-family: 'Press Start 2P', cursive;
+            color: var(--clr-green);
+            margin-bottom: 15px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .retro-button {
+            background: linear-gradient(90deg, var(--clr-blue), var(--clr-green));
+            color: var(--light-text);
+            padding: 10px 20px;
+            border: 2px solid var(--light-text);
+            border-radius: 5px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retro-button:hover {
+            background: linear-gradient(90deg, var(--clr-green), var(--clr-blue));
+            box-shadow: 0 0 10px rgba(24, 255, 168, 0.5);
+            transform: translateY(-2px);
+        }
+
+        #warmup-video-container, #exercise-video-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: rgba(40, 44, 52, 0.9);
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 900px;
+            box-shadow: 0 0 15px rgba(1, 195, 168, 0.5);
+        }
+
+        #warmup-video, #exercise-video {
+            width: 100%;
+            max-width: 800px;
+            border: 3px solid var(--clr-green);
+            border-radius: 5px;
+        }
+
+        .video-and-timer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .timer-container {
+            margin-top: 20px;
+        }
+
+        .timer-circle {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Press Start 2P', cursive;
+            color: var(--clr-green);
+            font-size: 1.5em;
+        }
+
+        .home-button {
+            background: linear-gradient(90deg, var(--clr-blue), var(--clr-green));
+            color: var(--light-text);
+            padding: 10px 20px;
+            border: 2px solid var(--light-text);
+            border-radius: 5px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            margin: 20px auto;
+            display: block;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+            background: linear-gradient(90deg, var(--clr-green), var(--clr-blue));
+            box-shadow: 0 0 10px rgba(24, 255, 168, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .trainer-money-layout-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .trainer-character img {
+                width: 80px;
+                height: 80px;
+            }
+
+            .money-window {
+                padding: 8px 16px;
+            }
+
+            .card {
+                max-width: 250px;
+            }
+
+            .modal-content {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .retro-button {
+                padding: 8px 16px;
+                font-size: 10px;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize Vanilla Tilt
+    VanillaTilt.init(document.querySelectorAll('.card'), {
+        max: 8,
+        speed: 250,
+        perspective: 800,
+        glare: false
+    });
+
+    // Warmup Modal Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const warmupModal = document.getElementById('warmup-modal');
+        const warmupNoBtn = document.getElementById('warmup-no');
+        const warmupYesBtn = document.getElementById('warmup-yes');
+        const warmupVideoContainer = document.getElementById('warmup-video-container');
+        const warmupVideo = document.getElementById('warmup-video');
+        const continueButton = document.getElementById('complete-button');
+        const exerciseContent = document.getElementById('exercise-content');
+
+        const hasWarmedUp = sessionStorage.getItem('hasWarmedUp');
+
+        if (hasWarmedUp === 'true') {
+            warmupModal.style.display = 'none';
+            exerciseContent.style.display = 'block';
+        } else {
+            warmupModal.style.display = 'flex';
+            exerciseContent.style.display = 'none';
+        }
+
+        warmupYesBtn.addEventListener('click', () => {
+            sessionStorage.setItem('hasWarmedUp', 'true');
+            warmupModal.style.display = 'none';
+            exerciseContent.style.display = 'block';
+        });
+
+        warmupNoBtn.addEventListener('click', () => {
+            warmupModal.style.display = 'none';
+            warmupVideoContainer.style.display = 'flex';
+            warmupVideo.play();
+            exerciseContent.style.display = 'none';
+        });
+
+        warmupVideo.addEventListener('ended', () => {
+            continueButton.style.display = 'block';
+        });
+
+        completeButton.addEventListener('click', () => {
+            warmupVideoContainer.style.display = 'none';
+            warmupVideo.pause();
+            warmupVideo.currentTime = 0;
+            sessionStorage.setItem('hasWarmedUp', 'true');
+            exerciseContent.style.display = 'block';
+        });
+    });
+
+    // Enhanced Exercise Start with Animation and Timer
+    function startExercise(name, id, videoPath, button) {
+        const card = button.closest('.card');
+        const exerciseContent = document.getElementById('exercise-content');
+        const exerciseVideoContainer = document.getElementById('exercise-video-container');
+        const exerciseVideo = document.getElementById('exercise-video');
+        const timerDisplay = document.getElementById('timer');
+        const progressRing = document.querySelector('.progress-ring-circle');
+
+        // Apply zoom-out animation
+        card.classList.add('zoom-out');
+        setTimeout(() => {
+            card.classList.remove('zoom-out');
+
+            // Show video and start timer
+            exerciseContent.style.display = 'none';
+            exerciseVideoContainer.style.display = 'flex';
+            exerciseVideo.src = videoPath;
+            exerciseVideo.style.display = 'block';
+            exerciseVideo.play();
+
+            // Timer logic
             let timeLeft = 60;
-            const timerDisplay = document.getElementById('timer-display');
+            timerDisplay.textContent = `1:00`;
+            progressRing.style.strokeDashoffset = 0;
 
-            const interval = setInterval(() => {
-                timeLeft--;
+            const timer = setInterval(() => {
+                timeLeft -= 0.1;
                 const minutes = Math.floor(timeLeft / 60);
-                const seconds = timeLeft % 60;
-                timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                setProgress((60 - timeLeft) / 60 * 100);
+                const seconds = Math.floor(timeLeft % 60);
+                timerDisplay.textContent = `${minutes}:${seconds.toFixed(0).padStart(2, '0')}`;
+
+                // Update progress circle
+                const progress = (timeLeft / 60) * 314;
+                progressRing.style.strokeDashoffset = 314 - progress;
 
                 if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    timerDisplay.textContent = '¡Listo!';
-                    document.querySelector('.speech-bubble p').textContent = '¡Bien hecho, ganaste 100 monedas!';
-
-                    // Enviar solicitud al backend para sumar las monedas
-                    fetch('/complete_exercise', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                        },
-                        body: `exercise_type=${exerciseName}`
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            console.log('Monedas añadidas con éxito');
-                            // Actualizar las monedas en la interfaz
-                            updateMonedas();
-                            alert('¡Ejercicio completado! Has ganado 100 monedas.');
-                        } else {
-                            console.error('Error al añadir monedas:', data.message);
-                            alert('Error: ' + data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Error al procesar el ejercicio. Por favor, intenta de nuevo.');
-                    });
-
-                    // Habilitar los botones nuevamente después de completar
-                    setTimeout(() => {
-                        document.querySelectorAll('.exercise-window button').forEach(button => {
-                            button.disabled = false;
-                            button.style.opacity = '1';
-                        });
-                    }, 3000);
+                    clearInterval(timer);
+                    exerciseVideo.pause();
+                    exerciseVideoContainer.style.display = 'none';
+                    exerciseContent.style.display = 'block';
+                    // Optionally update monedas or progress via backend
                 }
-            }, 1000);
-        }
-    </script>
-</body>
-</html>
+            }, 100);
+        }, 500);
+    }
+</script>
+{% endblock %}

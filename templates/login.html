@@ -4,138 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar sesión - FitGo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
-    <style media="screen">
-      *,
-      *:before,
-      *:after {
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-      }
-      body {
-        background-color: #080710;
-        font-family: 'Poppins', sans-serif;
-      }
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      /* Fondo con figuras decorativas */
-      .background {
-        width: 430px;
-        height: 520px;
-        position: absolute;
-        transform: translate(-50%, -50%);
-        left: 50%;
-        top: 50%;
-      }
-      .background .shape {
-        height: 200px;
-        width: 200px;
-        position: absolute;
-        border-radius: 50%;
-      }
-      .shape:first-child {
-        background: linear-gradient(#1845ad, #23a2f6);
-        left: -80px;
-        top: -80px;
-      }
-      .shape:last-child {
-        background: linear-gradient(to right, #ff512f, #f09819);
-        right: -30px;
-        bottom: -80px;
-      }
+        /* Fondo del cuerpo - BACKGROUND ÚNICO PARA LOGIN */
+        body {
+            /* Opción 1: Imagen específica para login */
+            background: #000 url('static/images/login-bg.jpg') no-repeat center center;
+            background-size: cover;
+            
+            /* Opción 2: Si no tienes la imagen, usa este gradiente */
+            /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
+            
+            /* Opción 3: Patrón diferente al index */
+            /* background: #000 url('static/images/login-pattern.png') repeat; */
+            /* background-size: 100px 100px; */
+            
+            min-height: 100vh;
+            font-family: 'Press Start 2P', cursive;
+            color: #fff;
+        }
 
-      .container {
-        width: 400px;
-        height: 520px;
-        position: absolute;
-        transform: translate(-50%, -50%);
-        left: 50%;
-        top: 50%;
-        background-color: rgba(255, 255, 255, 0.13);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 0 40px rgba(8, 7, 16, 0.6);
-        padding: 50px 35px;
-        border-radius: 10px;
-      }
-      h2 {
-        font-size: 32px;
-        font-weight: 500;
-        text-align: center;
-        color: #fff;
-      }
-      input {
-        display: block;
-        height: 50px;
-        width: 100%;
-        background-color: rgba(255, 255, 255, 0.07);
-        border-radius: 3px;
-        padding: 0 10px;
-        margin-top: 15px;
-        font-size: 14px;
-        font-weight: 300;
-        color: #fff;
-      }
-      ::placeholder {
-        color: #e5e5e5;
-      }
-      button {
-        margin-top: 30px;
-        width: 100%;
-        background-color: #ffffff;
-        color: #080710;
-        padding: 15px 0;
-        font-size: 18px;
-        font-weight: 600;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      a {
-        display: block;
-        text-align: center;
-        margin-top: 20px;
-        color: #e5e5e5;
-        text-decoration: none;
-      }
-      a:hover {
-        color: #fff;
-      }
-      .back-btn {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background-color: rgba(255, 255, 255, 0.2);
-        border: none;
-        padding: 10px 15px;
-        font-size: 16px;
-        color: #fff;
-        border-radius: 5px;
-        cursor: pointer;
-      }
-      .back-btn:hover {
-        background-color: rgba(255, 255, 255, 0.4);
-      }
+        /* Contenedor principal */
+        .retro-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+            /* Overlay semi-transparente para mejorar legibilidad */
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Formulario */
+        .login-form {
+            background: rgba(0, 0, 0, 0.8); /* Más transparente para mostrar el fondo */
+            border: 4px solid #fff;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 4px 4px 0 #000;
+            border-radius: 10px;
+            backdrop-filter: blur(5px); /* Efecto de desenfoque */
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #00ff00; /* Verde neón */
+            text-shadow: 2px 2px 0 #000;
+            margin-bottom: 20px;
+        }
+
+        input {
+            display: block;
+            width: 100%;
+            height: 40px;
+            background: #222;
+            border: 2px solid #fff;
+            border-radius: 5px;
+            padding: 0 10px;
+            margin-top: 15px;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            color: #fff;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        ::placeholder {
+            color: #ccc;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 100%;
+            background: #ff0000; /* Rojo retro */
+            border: 2px solid #fff;
+            color: #fff;
+            padding: 10px 0;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: pointer;
+            transition: background 0.2s ease-in-out;
+            box-shadow: 4px 4px 0 #000;
+        }
+
+        button:hover {
+            background: #00ff00; /* Verde retro */
+            animation: pixel-glow 0.5s infinite;
+        }
+
+        /* Enlace */
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 10px;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        a:hover {
+            color: #00ff00; /* Verde neón */
+            animation: pixel-glow 0.5s infinite;
+        }
+
+        /* Animación pixel-glow */
+        @keyframes pixel-glow {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+            100% { filter: brightness(1); }
+        }
+
+        /* Efecto de partículas flotantes (opcional) */
+        .login-form::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.03) 2px,
+                rgba(255, 255, 255, 0.03) 4px
+            );
+            animation: scan-lines 2s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scan-lines {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
     </style>
 </head>
 <body>
-
-    <!-- Fondo con círculos decorativos -->
-    <div class="background">
-        <div class="shape"></div>
-        <div class="shape"></div>
+    <div class="retro-container">
+        <div class="login-form">
+            <h2>Iniciar sesión</h2>
+            <form action="/login" method="POST">
+                <input type="text" name="nickname" placeholder="Nombre de usuario" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <button type="submit">Iniciar sesión</button>
+            </form>
+            <a href="/register">¿No tienes cuenta? Regístrate</a>
+        </div>
     </div>
-
-    <!-- Contenedor del login -->
-    <div class="container">
-        <h2>Iniciar sesión</h2>
-        <form action="/login" method="POST">
-            <input type="text" name="nickname" placeholder="Nombre de usuario" required>
-            <input type="password" name="password" placeholder="Contraseña" required>
-            <button type="submit">Iniciar sesión</button>
-        </form>
-        <a href="/register">¿No tienes cuenta? Regístrate</a>
-    </div>
-
 </body>
 </html>

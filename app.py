@@ -1,12 +1,19 @@
 import mysql.connector
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import webbrowser
 from threading import Timer
 from datetime import date
+import os
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"  # Clave para manejar sesiones
+
+# Configuración para la subida de archivos
+app.config['UPLOAD_FOLDER'] = 'static/uploads'  # Carpeta donde se guardarán las imágenes
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}  # Extensiones permitidas
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)  # Crear la carpeta si no existe
 
 # Configuración de conexión a MySQL
 db = mysql.connector.connect(
@@ -17,9 +24,24 @@ db = mysql.connector.connect(
 )
 cursor = db.cursor(dictionary=True)
 
+# Función para verificar extensiones permitidas
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Obtener los datos para el leaderboard
+    # Vamos a ordenar por monedas, y luego por las estadísticas de fuerza, agilidad, resistencia
+    # Para desempatar y hacer el ranking más completo.
+    cursor.execute("""
+        SELECT nickname, monedas, fuerza, agilidad, resistencia, profile_picture
+        FROM usuarios
+        ORDER BY monedas DESC, fuerza DESC, agilidad DESC, resistencia DESC
+        LIMIT 10
+    """) # Limitamos a 10 para no sobrecargar
+    leaderboard_data = cursor.fetchall()
+    
+    return render_template('index.html', leaderboard_data=leaderboard_data)
 
 @app.route('/play')
 def play():
@@ -27,11 +49,14 @@ def play():
         return redirect(url_for('login'))  # Redirigir si no está logueado
 
     id_usuario = session['id_usuario']
-    cursor.execute("SELECT monedas FROM usuarios WHERE id_usuario = %s", (id_usuario,))
-    usuario = cursor.fetchone()
-    monedas = usuario['monedas'] if usuario else 0
+    cursor.execute("SELECT id_usuario, nickname, monedas, profile_picture FROM usuarios WHERE id_usuario = %s", (id_usuario,))
+    usuario = cursor.fetchone()  # Obtener datos del usuario
 
-    return render_template('play.html', monedas=monedas)
+    if not usuario:
+        flash("Usuario no encontrado.")
+        return redirect(url_for('login'))
+
+    return render_template('play.html', usuario=usuario)  # Pasar el objeto usuario al template
 
 @app.route('/get_monedas', methods=['GET'])
 def get_monedas():
@@ -112,12 +137,12 @@ def complete_exercise():
 @app.route('/store')
 def store():
     if 'id_usuario' not in session:
-        return redirect(url_for('login'))  # Redirigir si no está logueado
+        return redirect(url_for('login'))
 
     id_usuario = session['id_usuario']
 
     # Obtener los productos disponibles
-    cursor.execute("SELECT * FROM productos WHERE stock > 0")  # Solo productos con stock disponible
+    cursor.execute("SELECT id, nombre, precio, stock, CONCAT('images/', imagen) AS imagen FROM productos WHERE stock > 0")
     products = cursor.fetchall()
 
     # Obtener las monedas del usuario
@@ -132,7 +157,7 @@ def store():
     total_carrito = 0
     carrito_con_detalles = []
     for item in carrito:
-        cursor.execute("SELECT * FROM productos WHERE id = %s", (item['id'],))
+        cursor.execute("SELECT id, nombre, precio, CONCAT('images/', imagen) AS imagen FROM productos WHERE id = %s", (item['id'],))
         producto = cursor.fetchone()
         if producto:
             total_carrito += producto['precio'] * item['cantidad']
@@ -406,22 +431,22 @@ def verificar_misiones():
         # Si la misión tiene un premio en monedas, añadirlas al usuario
         if mision['premio_moneda'] > 0:
             cursor.execute("UPDATE usuarios SET monedas = monedas + %s WHERE id_usuario = %s", 
-                           (mision['premio_moneda'], id_usuario))
+                            (mision['premio_moneda'], id_usuario))
         # Si la misión tiene un premio en productos, añadirlo al inventario del usuario
         if mision['premio_producto']:
             # Registrar en la tabla 'compras' como un historial
             cursor.execute("INSERT INTO compras (id_usuario, id_producto, cantidad) VALUES (%s, %s, %s)",
-                           (id_usuario, mision['premio_producto'], 1))
+                            (id_usuario, mision['premio_producto'], 1))
             # Actualizar el inventario del usuario
             cursor.execute("SELECT cantidad FROM inventario WHERE id_usuario = %s AND id_producto = %s", 
-                           (id_usuario, mision['premio_producto']))
+                            (id_usuario, mision['premio_producto']))
             inventario = cursor.fetchone()
             if inventario:
                 cursor.execute("UPDATE inventario SET cantidad = cantidad + 1 WHERE id_usuario = %s AND id_producto = %s",
-                               (id_usuario, mision['premio_producto']))
+                                (id_usuario, mision['premio_producto']))
             else:
                 cursor.execute("INSERT INTO inventario (id_usuario, id_producto, cantidad) VALUES (%s, %s, %s)",
-                               (id_usuario, mision['premio_producto'], 1))
+                                (id_usuario, mision['premio_producto'], 1))
         connection.commit()
 
     cursor.close()
@@ -487,6 +512,49 @@ def profile():
     usuario = cursor.fetchone()
 
     return render_template('profile.html', usuario=usuario)
+
+@app.route('/upload_profile', methods=['POST'])
+def upload_profile():
+    if 'id_usuario' not in session:
+        return redirect(url_for('login'))
+
+    id_usuario = session['id_usuario']
+
+    # Verificar si hay un archivo en la solicitud
+    if 'profile_picture' not in request.files:
+        flash('No se seleccionó ninguna imagen.')
+        return redirect(url_for('profile'))
+
+    file = request.files['profile_picture']
+
+    # Verificar si se seleccionó un archivo y si es permitido
+    if file.filename == '':
+        flash('No se seleccionó ninguna imagen.')
+        return redirect(url_for('profile'))
+    if not allowed_file(file.filename):
+        flash('Formato de imagen no permitido. Usa PNG, JPG, JPEG o GIF.')
+        return redirect(url_for('profile'))
+
+    try:
+        # Guardar el archivo con un nombre seguro
+        filename = secure_filename(file.filename)
+        # Usamos el id_usuario en el nombre del archivo para asegurar unicidad y fácil acceso
+        # También puedes usar un UUID para nombres de archivo completamente únicos si prefieres
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{id_usuario}_{filename}")
+        file.save(file_path)
+
+        # Guardar la ruta relativa en la base de datos
+        profile_picture_path = f"/static/uploads/{id_usuario}_{filename}"
+        cursor.execute("UPDATE usuarios SET profile_picture = %s WHERE id_usuario = %s", (profile_picture_path, id_usuario))
+        db.commit()
+
+        flash('Foto de perfil actualizada con éxito.')
+    except Exception as e:
+        db.rollback()
+        print(f"Error al subir la imagen: {e}")
+        flash('Error al subir la imagen.')
+    
+    return redirect(url_for('profile'))
 
 @app.route('/logout')
 def logout():

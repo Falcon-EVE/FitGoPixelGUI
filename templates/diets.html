@@ -1,95 +1,434 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dietas - FitGO</title>
-    <!-- Google Fonts para una fuente pixelada -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <!-- Usamos el styles.css principal -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="retro-container">
-        <!-- Título principal -->
-        <h1>Dietas Fit</h1>
+{% extends "base.html" %}
 
-        <!-- Contenedor de dietas -->
-        <div id="dietas-container" class="diet-windows">
-            <!-- Las dietas serán insertadas aquí dinámicamente -->
-        </div>
+{% block title %}Dietas - FitGo{% endblock %}
+{% block body_class %}page-diets{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+{% endblock %}
 
-        <!-- Botón de barajear con la misma clase que el botón de regresar -->
-        <a href="#" id="barajear-button" class="back-button">Barajear</a>
+{% block content %}
+<style>
+    /* Fondo para la página de dietas */
+    body.page-diets {
+        background: var(--dark-bg) url('{{ url_for("static", filename="images/diets-bg.png") }}') no-repeat center center;
+        background-size: cover;
+        min-height: 100vh;
+        font-family: var(--pixel-font);
+        color: var(--light-text);
+        overflow-x: hidden;
+        position: relative;
+    }
 
-        <!-- Botón de regresar -->
-        <a href="/" class="back-button">Regresar</a>
-    </div>
+    /* Overlay para mejorar legibilidad */
+    body.page-diets::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: -1;
+    }
 
-    <script>
-        // Lista de 20 dietas para niños menores de 17 años
-        const dietas = [
-            { nombre: 'Dieta 1: Dieta Balanceada', desayuno: 'Tostadas integrales con aguacate y huevo', almuerzo: 'Pollo a la plancha con brócoli', cena: 'Ensalada de atún con zanahorias' },
-            { nombre: 'Dieta 2: Dieta Mediterránea', desayuno: 'Yogur griego con frutas y nueces', almuerzo: 'Ensalada de atún con espinacas, tomate, aceitunas', cena: 'Pechuga de pollo con verduras al vapor' },
-            { nombre: 'Dieta 3: Dieta Baja en Carbohidratos', desayuno: 'Huevos revueltos con espinacas y aguacate', almuerzo: 'Pechuga de pollo con ensalada de brócoli y pepino', cena: 'Pescado a la parrilla con espárragos' },
-            { nombre: 'Dieta 4: Dieta Vegetariana', desayuno: 'Avena con leche de almendra, plátano y almendras', almuerzo: 'Tofu a la plancha con arroz integral y verduras', cena: 'Sopa de lentejas con espinacas y zanahorias' },
-            { nombre: 'Dieta 5: Dieta para Energía', desayuno: 'Batido de frutas con avena y almendras', almuerzo: 'Pollo con arroz integral y verduras', cena: 'Sopa de verduras y pan integral' },
-            { nombre: 'Dieta 6: Dieta Rica en Proteínas', desayuno: 'Huevos duros con tomate y espinacas', almuerzo: 'Carne magra con ensalada de pepino', cena: 'Salmón al horno con espárragos' },
-            { nombre: 'Dieta 7: Dieta para el Crecimiento', desayuno: 'Leche con cereales integrales', almuerzo: 'Pechuga de pollo con batatas', cena: 'Espaguetis con tomate y queso bajo en grasa' },
-            { nombre: 'Dieta 8: Dieta Baja en Azúcares', desayuno: 'Yogur natural con frutos rojos', almuerzo: 'Ensalada de pollo con quinoa', cena: 'Pechuga de pavo con verduras' },
-            { nombre: 'Dieta 9: Dieta de Frutos Rojos', desayuno: 'Tostadas de pan integral con mermelada de frutos rojos', almuerzo: 'Ensalada de pollo con fresas', cena: 'Pescado al vapor con puré de batata' },
-            { nombre: 'Dieta 10: Dieta Sin Gluten', desayuno: 'Huevos revueltos con espinacas', almuerzo: 'Arroz con pollo y verduras', cena: 'Sopa de calabaza y zanahorias' },
-            { nombre: 'Dieta 11: Dieta Baja en Grasas', desayuno: 'Fruta fresca con yogur', almuerzo: 'Pechuga de pollo con ensalada', cena: 'Sopa de lentejas' },
-            { nombre: 'Dieta 12: Dieta Mediterránea Ligera', desayuno: 'Avena con miel y frutas', almuerzo: 'Ensalada de atún', cena: 'Sopa de verduras con pan integral' },
-            { nombre: 'Dieta 13: Dieta para Deportistas', desayuno: 'Batido de proteínas con avena', almuerzo: 'Carne magra con arroz y ensalada', cena: 'Pescado con espárragos y zanahorias' },
-            { nombre: 'Dieta 14: Dieta Detox', desayuno: 'Jugo de naranja con espinacas', almuerzo: 'Ensalada de pepino con aguacate', cena: 'Sopa de tomate y pan integral' },
-            { nombre: 'Dieta 15: Dieta Baja en Sodio', desayuno: 'Yogur natural con frutos secos', almuerzo: 'Pollo asado con arroz integral', cena: 'Verduras al vapor con tofu' },
-            { nombre: 'Dieta 16: Dieta para Piel Saludable', desayuno: 'Jugo de zanahoria con manzana', almuerzo: 'Ensalada de aguacate con tomate', cena: 'Salmón con espárragos' },
-            { nombre: 'Dieta 17: Dieta para Huesos Fuertes', desayuno: 'Leche con avena', almuerzo: 'Sopa de brócoli con queso bajo en grasa', cena: 'Pechuga de pollo con zanahorias' },
-            { nombre: 'Dieta 18: Dieta de Fibra Alta', desayuno: 'Pan integral con aguacate', almuerzo: 'Arroz integral con verduras', cena: 'Sopa de lentejas con espinacas' },
-            { nombre: 'Dieta 19: Dieta para la Concentración', desayuno: 'Yogur griego con nueces', almuerzo: 'Ensalada de pollo con espinacas', cena: 'Pescado con puré de batata' },
-            { nombre: 'Dieta 20: Dieta Vegana', desayuno: 'Avena con leche de almendras', almuerzo: 'Tofu con arroz y brócoli', cena: 'Sopa de verduras' }
-        ];
+    /* Contenedor principal */
+    .retro-container {
+        background: rgba(0, 0, 0, 0.1);
+        min-height: 100vh;
+        padding: 20px;
+        padding-top: 7rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-        // Función para barajear y mostrar 3 dietas aleatorias
-        let dietasMostradas = [];
+    /* Título */
+    .profile-title {
+        color: var(--light-text);
+        text-shadow: 2px 2px 0 var(--dark-bg);
+        font-family: var(--pixel-font);
+        font-size: 28px;
+        margin-bottom: 30px;
+        text-align: center;
+        animation: slideInUp 0.6s ease-out;
+    }
 
-        function barajearDietas() {
-            // Limpiar el contenedor antes de mostrar las nuevas dietas
-            document.getElementById("dietas-container").innerHTML = '';
+    /* Contenedor de dietas */
+    .diet-windows {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
 
-            // Seleccionar 3 dietas aleatorias que no se repitan
-            let dietasSeleccionadas = [];
-            while (dietasSeleccionadas.length < 3) {
-                let randomIndex = Math.floor(Math.random() * dietas.length);
-                if (!dietasSeleccionadas.includes(randomIndex)) {
-                    dietasSeleccionadas.push(randomIndex);
-                }
-            }
+    /* Ventana de dieta (flip card) */
+    .diet-window {
+        perspective: 1000px;
+        width: 350px;
+        height: 450px;
+        margin: 0 auto;
+        cursor: pointer;
+    }
 
-            // Mostrar las dietas seleccionadas
-            dietasSeleccionadas.forEach(index => {
-                const dieta = dietas[index];
-                const dietaElement = `
-                    <div class="diet-window">
-                        <span></span>
-                        <div class="content">
-                            <h2>${dieta.nombre}</h2>
-                            <p>Desayuno: ${dieta.desayuno}</p>
-                            <p>Almuerzo: ${dieta.almuerzo}</p>
-                            <p>Cena: ${dieta.cena}</p>
-                        </div>
-                    </div>
-                `;
-                document.getElementById("dietas-container").innerHTML += dietaElement;
-            });
+    .diet-window-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+    }
+
+    .diet-window.flipped .diet-window-inner {
+        transform: rotateY(180deg);
+    }
+
+    .diet-window-front, .diet-window-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .diet-window-front {
+        background: rgba(30, 37, 48, 0.9);
+        backdrop-filter: blur(10px);
+        border: 3px solid var(--accent-blue);
+        color: var(--light-text);
+        text-align: center;
+        transition: box-shadow 0.3s ease;
+    }
+
+    .diet-window-front:hover {
+        box-shadow: 0 0 30px rgba(79, 172, 254, 0.5);
+    }
+
+    .diet-window-back {
+        background: rgba(30, 37, 48, 0.9);
+        border: 3px solid var(--accent-green);
+        transform: rotateY(180deg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .diet-window-back img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .diet-window .content {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .diet-window h2 {
+        font-size: 20px;
+        color: var(--light-text);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        font-family: var(--pixel-font);
+    }
+
+    .diet-window p {
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 5px 0;
+        font-family: 'VT323', monospace;
+    }
+
+    /* Botón de barajear */
+    .retro-button {
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+        border: 2px solid var(--light-text);
+        color: var(--light-text);
+        padding: 12px 24px;
+        font-family: var(--pixel-font);
+        font-size: 14px;
+        text-transform: uppercase;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        margin-top: 30px;
+        cursor: pointer;
+    }
+
+    .retro-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+    }
+
+    /* Partículas flotantes */
+    body.page-diets::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(79, 172, 254, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(67, 233, 123, 0.1) 0%, transparent 50%);
+        animation: float 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(120deg); }
+        66% { transform: translateY(20px) rotate(240deg); }
+    }
+
+    /* Responsividad */
+    @media (max-width: 768px) {
+        .diet-windows {
+            grid-template-columns: 1fr;
         }
 
-        // Llamada inicial para mostrar las dietas
-        barajearDietas();
+        .diet-window {
+            width: 300px;
+            height: 400px;
+        }
 
-        // Evento para el botón de barajear
-        document.getElementById("barajear-button").addEventListener("click", barajearDietas);
-    </script>
-</body>
-</html>
+        .profile-title {
+            font-size: 24px;
+        }
+
+        .diet-window h2 {
+            font-size: 18px;
+        }
+
+        .diet-window p {
+            font-size: 14px;
+        }
+
+        .retro-button {
+            padding: 10px 20px;
+            font-size: 12px;
+        }
+    }
+</style>
+
+<div class="retro-container">
+    <!-- Título -->
+    <h1 class="profile-title">Dietas Fit</h1>
+
+    <!-- Contenedor de dietas -->
+    <div id="dietas-container" class="diet-windows">
+    </div>
+
+    <!-- Botón de barajear -->
+    <a href="#" id="barajear-button" class="retro-button">Barajear</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lista de 20 dietas con imágenes asociadas
+    const dietas = [
+        { 
+            nombre: 'Dieta 1: Dieta Balanceada', 
+            desayuno: 'Tostadas integrales con aguacate y huevo', 
+            almuerzo: 'Pollo a la plancha con brócoli', 
+            cena: 'Ensalada de atún con zanahorias',
+            imagen: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 2: Dieta Mediterránea', 
+            desayuno: 'Yogur griego con frutas y nueces', 
+            almuerzo: 'Ensalada de atún con espinacas, tomate, aceitunas', 
+            cena: 'Pechuga de pollo con verduras al vapor',
+            imagen: 'https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 3: Dieta Baja en Carbohidratos', 
+            desayuno: 'Huevos revueltos con espinacas y aguacate', 
+            almuerzo: 'Pechuga de pollo con ensalada de brócoli y pepino', 
+            cena: 'Pescado a la parrilla con espárragos',
+            imagen: 'https://images.pexels.com/photos/1092730/pexels-photo-1092730.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 4: Dieta Vegetariana', 
+            desayuno: 'Avena con leche de almendra, plátano y almendras', 
+            almuerzo: 'Tofu a la plancha con arroz integral y verduras', 
+            cena: 'Sopa de lentejas con espinacas y zanahorias',
+            imagen: 'https://images.pexels.com/photos/1279330/pexels-photo-1279330.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 5: Dieta para Energía', 
+            desayuno: 'Batido de frutas con avena y almendras', 
+            almuerzo: 'Pollo con arroz integral y verduras', 
+            cena: 'Sopa de verduras y pan integral',
+            imagen: 'https://images.pexels.com/photos/704569/pexels-photo-704569.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 6: Dieta Rica en Proteínas', 
+            desayuno: 'Huevos duros con tomate y espinacas', 
+            almuerzo: 'Carne magra con ensalada de pepino', 
+            cena: 'Salmón al horno con espárragos',
+            imagen: 'https://images.pexels.com/photos/769289/pexels-photo-769289.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 7: Dieta para el Crecimiento', 
+            desayuno: 'Leche con cereales integrales', 
+            almuerzo: 'Pechuga de pollo con batatas', 
+            cena: 'Espaguetis con tomate y queso bajo en grasa',
+            imagen: 'https://images.pexels.com/photos/803963/pexels-photo-803963.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 8: Dieta Baja en Azúcares', 
+            desayuno: 'Yogur natural con frutos rojos', 
+            almuerzo: 'Ensalada de pollo con quinoa', 
+            cena: 'Pechuga de pavo con verduras',
+            imagen: 'https://images.pexels.com/photos/1351238/pexels-photo-1351238.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 9: Dieta de Frutos Rojos', 
+            desayuno: 'Tostadas de pan integral con mermelada de frutos rojos', 
+            almuerzo: 'Ensalada de pollo con fresas', 
+            cena: 'Pescado al vapor con puré de batata',
+            imagen: 'https://images.pexels.com/photos/1132047/pexels-photo-1132047.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 10: Dieta Sin Gluten', 
+            desayuno: 'Huevos revueltos con espinacas', 
+            almuerzo: 'Arroz con pollo y verduras', 
+            cena: 'Sopa de calabaza y zanahorias',
+            imagen: 'https://images.pexels.com/photos/1640774/pexels-photo-1640774.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 11: Dieta Baja en Grasas', 
+            desayuno: 'Fruta fresca con yogur', 
+            almuerzo: 'Pechuga de pollo con ensalada', 
+            cena: 'Sopa de lentejas',
+            imagen: 'https://images.pexels.com/photos/718742/pexels-photo-718742.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 12: Dieta Mediterránea Ligera', 
+            desayuno: 'Avena con miel y frutas', 
+            almuerzo: 'Ensalada de atún', 
+            cena: 'Sopa de verduras con pan integral',
+            imagen: 'https://images.pexels.com/photos/1099680/pexels-photo-1099680.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 13: Dieta para Deportistas', 
+            desayuno: 'Batido de proteínas con avena', 
+            almuerzo: 'Carne magra con arroz y ensalada', 
+            cena: 'Pescado con espárragos y zanahorias',
+            imagen: 'https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 14: Dieta Detox', 
+            desayuno: 'Jugo de naranja con espinacas', 
+            almuerzo: 'Ensalada de pepino con aguacate', 
+            cena: 'Sopa de tomate y pan integral',
+            imagen: 'https://images.pexels.com/photos/1410235/pexels-photo-1410235.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 15: Dieta Baja en Sodio', 
+            desayuno: 'Yogur natural con frutos secos', 
+            almuerzo: 'Pollo asado con arroz integral', 
+            cena: 'Verduras al vapor con tofu',
+            imagen: 'https://images.pexels.com/photos/128408/pexels-photo-128408.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 16: Dieta para Piel Saludable', 
+            desayuno: 'Jugo de zanahoria con manzana', 
+            almuerzo: 'Ensalada de aguacate con tomate', 
+            cena: 'Salmón con espárragos',
+            imagen: 'https://images.pexels.com/photos/209449/pexels-photo-209449.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 17: Dieta para Huesos Fuertes', 
+            desayuno: 'Leche con avena', 
+            almuerzo: 'Sopa de brócoli con queso bajo en grasa', 
+            cena: 'Pechuga de pollo con zanahorias',
+            imagen: 'https://images.pexels.com/photos/674574/pexels-photo-674574.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 19: Dieta para la Concentración', 
+            desayuno: 'Yogur griego con nueces', 
+            almuerzo: 'Ensalada de pollo con espinacas', 
+            cena: 'Pescado con puré de batata',
+            imagen: 'https://images.pexels.com/photos/842571/pexels-photo-842571.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        },
+        { 
+            nombre: 'Dieta 20: Dieta Vegana', 
+            desayuno: 'Avena con leche de almendras', 
+            almuerzo: 'Tofu con arroz y brócoli', 
+            cena: 'Sopa de verduras',
+            imagen: 'https://images.pexels.com/photos/699953/pexels-photo-699953.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'
+        }
+    ];
+
+    // Función para barajear y mostrar 3 dietas aleatorias
+    function barajearDietas() {
+        const container = document.getElementById("dietas-container");
+        container.innerHTML = '';
+
+        // Seleccionar 3 dietas aleatorias sin repetición
+        let indices = [];
+        while (indices.length < 3) {
+            let randomIndex = Math.floor(Math.random() * dietas.length);
+            if (!indices.includes(randomIndex)) {
+                indices.push(randomIndex);
+            }
+        }
+
+        // Mostrar las dietas seleccionadas
+        indices.forEach(index => {
+            const dieta = dietas[index];
+            const dietaElement = `
+                <div class="diet-window">
+                    <div class="diet-window-inner">
+                        <div class="diet-window-front">
+                            <div class="content">
+                                <h2>${dieta.nombre}</h2>
+                                <p>Desayuno: ${dieta.desayuno}</p>
+                                <p>Almuerzo: ${dieta.almuerzo}</p>
+                                <p>Cena: ${dieta.cena}</p>
+                            </div>
+                        </div>
+                        <div class="diet-window-back">
+                            <img src="${dieta.imagen}" alt="Imagen de ${dieta.nombre}">
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += dietaElement;
+        });
+
+        // Añadir evento de clic para voltear las cartas
+        document.querySelectorAll('.diet-window').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('flipped');
+            });
+        });
+    }
+
+    // Llamada inicial
+    barajearDietas();
+
+    // Evento para el botón de barajear
+    document.getElementById("barajear-button").addEventListener("click", (e) => {
+        e.preventDefault();
+        barajearDietas();
+    });
+</script>
+{% endblock %}

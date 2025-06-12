@@ -1,166 +1,439 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Misiones - FitGO</title>
-    <!-- Google Fonts para una fuente pixelada -->
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="retro-container">
-        <!-- Encabezado -->
-        <header>
-            <h1>🏆 Misiones y Ejercicios</h1>
-            <nav>
-                <a href="{{ url_for('play') }}" class="nav-button">Entrenar</a>
-                <a href="{{ url_for('store') }}" class="nav-button">Tienda</a>
-                <a href="{{ url_for('profile') }}" class="nav-button">Perfil</a>
-                <a href="{{ url_for('logout') }}" class="nav-button">Cerrar Sesión</a>
-            </nav>
-        </header>
+{% extends "base.html" %}
 
-        <!-- Personaje guía -->
-        <div class="trainer-character">
-            <img src="{{ url_for('static', filename='trainer.png') }}" alt="Entrenador">
-            <div class="speech-bubble">
-                <p>¡Completa ejercicios y conquista misiones para ganar recompensas épicas!</p>
-            </div>
-        </div>
+{% block title %}Misiones - FitGo{% endblock %}
+{% block body_class %}page-missions{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+{% endblock %}
 
-        <section class="missions-container">
-            <div class="grid-missions">
-                <!-- Misiones Pendientes -->
-                <div class="missions-window small">
-                    <h2>🎯 Misiones</h2>
-                    <div class="missions-list">
-                        {% for mision in misiones_pendientes %}
-                            <div class="mission-card compact">
-                                <h3>{{ mision['nombre'] }}</h3>
-                                <p>{{ mision['descripcion'] }}</p>
-                                <p><strong>🏆 Recompensa:</strong> {{ mision['premio_moneda'] }} monedas</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-        
-                <!-- Ejercicios de Fuerza -->
-                <div class="missions-window small">
-                    <h2>🏋️‍♂️ Fuerza</h2>
-                    <div class="missions-list">
-                        {% for ejercicio in ejercicios_fuerza %}
-                            <div class="exercise-card compact">
-                                <h3>{{ ejercicio['nombre'] }}</h3>
-                                <p>{{ ejercicio['descripcion'] }}</p>
-                                <button onclick="completarEjercicio('{{ ejercicio['id_ejercicio'] }}')">✔</button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-        
-                <!-- Ejercicios de Agilidad -->
-                <div class="missions-window small">
-                    <h2>🏃‍♂️ Agilidad</h2>
-                    <div class="missions-list">
-                        {% for ejercicio in ejercicios_agilidad %}
-                            <div class="exercise-card compact">
-                                <h3>{{ ejercicio['nombre'] }}</h3>
-                                <p>{{ ejercicio['descripcion'] }}</p>
-                                <button onclick="completarEjercicio('{{ ejercicio['id_ejercicio'] }}')">✔</button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-        
-                <!-- Ejercicios de Resistencia -->
-                <div class="missions-window small">
-                    <h2>💪 Resistencia</h2>
-                    <div class="missions-list">
-                        {% for ejercicio in ejercicios_resistencia %}
-                            <div class="exercise-card compact">
-                                <h3>{{ ejercicio['nombre'] }}</h3>
-                                <p>{{ ejercicio['descripcion'] }}</p>
-                                <button onclick="completarEjercicio('{{ ejercicio['id_ejercicio'] }}')">✔</button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-        
-                <!-- Misiones Completadas -->
-                <div class="missions-window small">
-                    <h2>🏅 Completadas</h2>
-                    <div class="missions-list">
-                        {% for mision in misiones_completadas %}
-                            <div class="mission-card compact">
-                                <h3>{{ mision['nombre'] }}</h3>
-                                <p>{{ mision['fecha_completada'] }}</p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </section>
-        
-            <!-- Botón de regresar -->
-            <a href="/" class="back-button">Regresar</a>
-        </section>
+{% block content %}
+<style>
+    /* Fondo con GIF */
+    body.page-missions {
+        background: var(--dark-bg) url('{{ url_for("static", filename="videos/missions-bg.gif") }}') no-repeat center center;
+        background-size: cover;
+        min-height: 100vh;
+        font-family: var(--pixel-font);
+        color: var(--light-text);
+        overflow-x: hidden;
+        position: relative;
+    }
 
-        <!-- Pie de página -->
-        <footer>
-            <p>© 2025 FitGo - ¡Sigue entrenando para ganar recompensas! 💪</p>
-        </footer>
-    </div>
+    /* Overlay para legibilidad */
+    body.page-missions::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4); /* Overlay más oscuro para GIF animado */
+        z-index: -1;
+    }
 
-    <!-- JavaScript para completar ejercicios sin recargar la página -->
-    <script>
-        function completarEjercicio(idEjercicio) {
-            // Deshabilitar el botón para evitar múltiples clics
-            const button = document.querySelector(`.exercise-card[data-id="${idEjercicio}"] button`);
-            button.disabled = true;
-            button.style.opacity = '0.5';
-            button.textContent = 'Completando...';
+    /* Contenedor principal */
+    .retro-container {
+        background: rgba(0, 0, 0, 0.1);
+        min-height: 100vh;
+        padding: 20px;
+        padding-top: 7rem; /* Espacio para la barra de navegación */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 
-            // Enviar solicitud al backend para completar el ejercicio
-            fetch('/completar_ejercicio', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `id_ejercicio=${idEjercicio}`
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Mostrar mensaje de éxito
-                    alert('¡Ejercicio completado con éxito! Sigue así.');
-                    // Actualizar la página o el estado (opcional)
-                    button.textContent = 'Completado';
-                    button.style.backgroundColor = '#00ff00';
-                } else {
-                    throw new Error('Error al completar el ejercicio');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al completar el ejercicio. Por favor, intenta de nuevo.');
-                button.disabled = false;
-                button.style.opacity = '1';
-                button.textContent = 'Completar';
-            });
+    /* Título */
+    .profile-title {
+        color: var(--light-text);
+        text-shadow: 2px 2px 0 var(--dark-bg);
+        font-family: var(--pixel-font);
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    /* Entrenador */
+    .trainer-character {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        animation: slideInUp 0.6s ease-out;
+        position: relative;
+    }
+
+    .trainer-character img {
+        width: 100px;
+        height: 100px;
+        image-rendering: pixelated;
+        animation: float 2s ease-in-out infinite;
+    }
+
+    .speech-bubble {
+        background: rgba(255, 255, 255, 0.9);
+        border: 3px solid var(--light-text);
+        border-radius: 10px;
+        padding: 10px;
+        max-width: 250px;
+        margin-left: 10px;
+        position: relative;
+        font-size: 12px;
+        color: var(--dark-bg);
+        animation: typing 3s steps(40, end);
+        overflow: hidden;
+    }
+
+    .speech-bubble::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 5px solid transparent;
+        border-right: 5px solid var(--light-text);
+    }
+
+    /* Contenedor de misiones */
+    .missions-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .grid-missions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        background: url('{{ url_for("static", filename="images/pergamino-bg.png") }}') no-repeat center center;
+        background-size: cover;
+        padding: 20px;
+        border: 4px solid var(--accent-yellow);
+        border-radius: 15px;
+        box-shadow: 0 0 20px rgba(255, 193, 7, 0.3);
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    .missions-window {
+        background: rgba(30, 37, 48, 0.9);
+        backdrop-filter: blur(10px);
+        border: 3px solid var(--accent-blue);
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+        box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        transition: transform 0.3s ease;
+    }
+
+    .missions-window:hover {
+        transform: translateY(-5px);
+    }
+
+    .missions-window h2 {
+        font-size: 16px;
+        color: var(--light-text);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .missions-list {
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 5px;
+    }
+
+    .missions-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .missions-list::-webkit-scrollbar-thumb {
+        background: var(--accent-green);
+        border-radius: 4px;
+    }
+
+    .mission-card,
+    .exercise-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid var(--light-text);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        animation: slideInUp 0.6s ease-out;
+    }
+
+    .mission-card h3,
+    .exercise-card h3 {
+        font-size: 14px;
+        color: var(--light-text);
+        margin-bottom: 5px;
+    }
+
+    .mission-card p,
+    .exercise-card p {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 5px 0;
+    }
+
+    .mission-card.completed {
+        opacity: 0.7;
+        position: relative;
+    }
+
+    .mission-card.completed::after {
+        content: '✅';
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        font-size: 20px;
+    }
+
+    .exercise-card button {
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+        border: 2px solid var(--light-text);
+        color: var(--light-text);
+        padding: 5px 10px;
+        font-family: var(--pixel-font);
+        font-size: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .exercise-card button:hover {
+        transform: translateY(-2px);
+        background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+    }
+
+    /* Filtros */
+    .mission-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .filter-button {
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+        border: 2px solid var(--light-text);
+        color: var(--light-text);
+        padding: 8px 15px;
+        font-family: var(--pixel-font);
+        font-size: 12px;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .filter-button:hover,
+    .filter-button.active {
+        background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+        transform: translateY(-2px);
+    }
+
+    /* Partículas flotantes */
+    body.page-missions::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle at 25% 25%, rgba(79, 172, 254, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(67, 233, 123, 0.1) 0%, transparent 50%);
+        animation: float 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(120deg); }
+        66% { transform: translateY(20px) rotate(240deg); }
+    }
+
+    @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+    }
+
+    /* Responsividad */
+    @media (max-width: 768px) {
+        .grid-missions {
+            grid-template-columns: 1fr;
         }
 
-        // Evitar que el formulario de verificar misiones recargue la página
-        document.getElementById('verificar-misiones-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            fetch('/verificar_misiones', {
-                method: 'GET'
-            })
-            .then(response => response.ok ? window.location.reload() : Promise.reject('Error al verificar misiones'))
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al verificar misiones. Por favor, intenta de nuevo.');
+        .profile-title {
+            font-size: 20px;
+        }
+
+        .trainer-character img {
+            width: 80px;
+            height: 80px;
+        }
+
+        .speech-bubble {
+            max-width: 200px;
+            font-size: 10px;
+        }
+
+        .missions-window h2 {
+            font-size: 14px;
+        }
+
+        .mission-card h3,
+        .exercise-card h3 {
+            font-size: 12px;
+        }
+
+        .mission-card p,
+        .exercise-card p {
+            font-size: 10px;
+        }
+
+        .filter-button {
+            padding: 6px 12px;
+            font-size: 10px;
+        }
+    }
+</style>
+
+<div class="retro-container">
+    <!-- Título -->
+    <h1 class="profile-title">🏆 Misiones y Ejercicios</h1>
+
+    <!-- Entrenador -->
+    <div class="trainer-character">
+        <img src="{{ url_for('static', filename='images/trainer.png') }}" alt="Entrenador">
+        <div class="speech-bubble">
+            <p>¡Completa ejercicios y conquista misiones para ganar recompensas épicas!</p>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="mission-filters">
+        <button class="filter-button active" data-filter="all">Todas</button>
+        <button class="filter-button" data-filter="missions">Misiones</button>
+        <button class="filter-button" data-filter="fuerza">Fuerza</button>
+        <button class="filter-button" data-filter="agilidad">Agilidad</button>
+        <button class="filter-button" data-filter="resistencia">Resistencia</button>
+        <button class="filter-button" data-filter="completadas">Completadas</button>
+    </div>
+
+    <!-- Misiones -->
+    <section class="missions-container">
+        <div class="grid-missions">
+            <div class="missions-window" data-category="missions">
+                <h2><span>🎯</span> Misiones</h2>
+                <div class="missions-list">
+                    {% for mision in misiones_pendientes %}
+                        <div class="mission-card">
+                            <h3>{{ mision['nombre'] }}</h3>
+                            <p>{{ mision['descripcion'] }}</p>
+                            <p><strong>🏆 Recompensa:</strong> {{ mision['premio_moneda'] }} monedas</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="missions-window" data-category="fuerza">
+                <h2><span>🏋️‍♂️</span> Fuerza</h2>
+                <div class="missions-list">
+                    {% for ejercicio in ejercicios_fuerza %}
+                        <div class="exercise-card" data-id="{{ ejercicio['id_ejercicio'] }}">
+                            <h3>{{ ejercicio['nombre'] }}</h3>
+                            <p>{{ ejercicio['descripcion'] }}</p>
+                            <button class="retro-button" onclick="completarEjercicio('{{ ejercicio['id_ejercicio'] }}')">Completar</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="missions-window" data-category="agilidad">
+                <h2><span>🏃‍♂️</span> Agilidad</h2>
+                <div class="missions-list">
+                    {% for ejercicio in ejercicios_agilidad %}
+                        <div class="exercise-card" data-id="{{ ejercicio['id_ejercicio'] }}">
+                            <h3>{{ ejercicio['nombre'] }}</h3>
+                            <p>{{ ejercicio['descripcion'] }}</p>
+                            <button class="retro-button" onclick="completarEjercicio('{{ ejercicio['id_ejercicio'] }}')">Completar</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="missions-window" data-category="resistencia">
+                <h2><span>💪</span> Resistencia</h2>
+                <div class="missions-list">
+                    {% for ejercicio in ejercicios_resistencia %}
+                        <div class="exercise-card" data-id="{{ ejercicio['id_ejercicio'] }}">
+                            <h3>{{ ejercicio['nombre'] }}</h3>
+                            <p>{{ ejercicio['descripcion'] }}</p>
+                            <button class="retro-button" onclick="completarEjercicio('{{ ejercicio['id_ejercicio'] }}')">Completar</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="missions-window" data-category="completadas">
+                <h2><span>🏅</span> Completadas</h2>
+                <div class="missions-list">
+                    {% for mision in misiones_completadas %}
+                        <div class="mission-card completed">
+                            <h3>{{ mision['nombre'] }}</h3>
+                            <p>{{ mision['descripcion'] }}</p>
+                            <p><strong>✅ Completada</strong></p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+    // Filtros
+    document.querySelectorAll('.filter-button').forEach(button => {
+        button.addEventListener('click', () => {
+            const filter = button.getAttribute('data-filter');
+            document.querySelectorAll('.missions-window').forEach(window => {
+                if (filter === 'all' || window.getAttribute('data-category') === filter) {
+                    window.style.display = 'block';
+                } else {
+                    window.style.display = 'none';
+                }
             });
+            document.querySelectorAll('.filter-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
         });
-    </script>
-</body>
-</html>
+    });
+
+    // Completar ejercicio con animación de confeti
+    function completarEjercicio(id) {
+        // Aquí va tu lógica para enviar el ID al backend (por ejemplo, una solicitud AJAX)
+        console.log('Completando ejercicio con ID:', id);
+
+        // Animación de confeti
+        confetti({
+            particleCount: 100,
+            spread: 70,
+            origin: { y: 0.6 }
+        });
+
+        // Opcional: Recargar la página o actualizar la lista de ejercicios
+        // window.location.reload();
+    }
+</script>
+{% endblock %}
+{% endblock %}
